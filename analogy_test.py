@@ -1,7 +1,7 @@
 # Using chrisjmccormick's github for the basic word2vec import
 
 import gensim
-from gensim import utils, matutils
+from gensim import utils
 import gensim.downloader as api
 from gensim.models.word2vec import Word2Vec, Word2VecKeyedVectors
 
