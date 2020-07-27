@@ -2,6 +2,7 @@ import shutil
 import tarfile
 import zipfile
 from os.path import join, exists
+from os import mkdir
 
 import gensim
 import wget
@@ -23,6 +24,8 @@ MODEL_PATH_DICT = {'word2vec': 'GoogleNews-vectors-negative300.bin.gz',
 def download_model(name):
     if not name in MODELS:
         raise Exception(str(name) + ' not a model in the list')
+    if not exists(PATH):
+        mkdir(PATH)
     print('# Downloading model: ' + str(name))
     name_path = MODEL_PATH_DICT[name]
     if name == 'word2vec':
