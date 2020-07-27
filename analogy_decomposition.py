@@ -139,7 +139,7 @@ def save_decompo(names, results, decomposition):
     r = np.array([names,results[0],results[1],results[2]])
     print(r.shape)
     print(columns.shape)
-    df = pd.DataFrame(np.array([names,results[0],results[1],results[2]]), columns=columns)
+    df = pd.DataFrame(np.array([[names,results[0],results[1],results[2]]])[0], columns=columns)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(decomposition) + '-' + str(timestr) + '.csv'
