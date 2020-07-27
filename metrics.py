@@ -131,8 +131,8 @@ def metrics_from_model(model, nb_perms=50):
     return (names, ocs, pcs)
 
 def save_metrics(ocs, pcs, name, names):
-    df_ocs = pd.DataFrame(np.array([names, ocs]), columns=np.array(["Categories", "OCS"]))
-    df_pcs = pd.DataFrame(np.array([names, pcs]), columns=np.array(["Categories", "PCS"]))
+    df_ocs = pd.DataFrame(np.array([[names, ocs]]), columns=np.array(["Categories", "OCS"]))
+    df_pcs = pd.DataFrame(np.array([[names, pcs]]), columns=np.array(["Categories", "PCS"]))
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(name) + '-' + str(timestr) + '.csv'
