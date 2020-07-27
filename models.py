@@ -26,7 +26,7 @@ def download_model(name):
     if not name in MODELS:
         raise Exception(str(name) + ' not a model in the list')
     if not exists(PATH):
-        print(str(PATH), "not found, creating dir.")
+        print("# ", str(PATH), "not found, creating dir.")
         mkdir(PATH)
     print('# Downloading model: ' + str(name))
     name_path = MODEL_PATH_DICT[name]
@@ -36,7 +36,7 @@ def download_model(name):
             shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded word2vec')
         else:
-            print('Already downloaded')
+            print('# Already downloaded')
     if name == 'glove':
         if not exists(join(PATH, name_path)):
             wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
@@ -45,17 +45,17 @@ def download_model(name):
             _ = glove2word2vec('./glove.840B.300d.txt', join(PATH, name_path))
             print('# Downloaded glove')
         else:
-            print('Already downloaded')
+            print('# Already downloaded')
     if name == 'dict2vec':
         if not exists(join(PATH, name_path)):
-            #wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
+            wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
             tar = tarfile.open("dict2vec300.tar.bz2")
             tar.extractall()
             tar.close()
             shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded dict2vec')
         else:
-            print('Already downloaded')
+            print('# Already downloaded')
 
     if name == 'conceptnet':
         if not exists(join(PATH, name_path)):
@@ -63,7 +63,7 @@ def download_model(name):
             shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded Conceptnet Numberbatch')
         else:
-            print('Already downloaded')
+            print('# Already downloaded')
     if name == 'bert':
         _ = BertTokenizer.from_pretrained('bert-large-uncased')
         _ = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
@@ -77,6 +77,7 @@ def download_model(name):
 def download_all():
     for name in MODELS:
         download_model(name)
+    print('# Successfully downloaded all models')
 
 
 def load_model_fromlist(name):
@@ -109,7 +110,7 @@ def load_model_fromlist(name):
 
 def load_model_custom(model_path, binary=False):
     if not exists(join(PATH, model_path)):
-        raise Exception('Model not found in /models: ', model_path)
+        raise Exception('# Model not found in /models: ', model_path)
     return (gensim.models.KeyedVectors.load_word2vec_format(join(PATH, model_path), binary=binary))
 
 def load_model(name, binary=False):

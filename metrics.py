@@ -137,12 +137,12 @@ def save_metrics(ocs, pcs, name):
     df_ocs.to_csv('ocs-' + namepath, index=False)
     df_pcs.to_csv('pcs-' + namepath, index=False)
 
-    print("Sucessfully saved the metrics to ocs/pcs-", str(namepath))
+    print("# Sucessfully saved the metrics to ocs/pcs-", str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script
     if len(sys.argv) < 2:
-        raise("Please provide a model (name, or filename for a custom model)")
+        raise("# Please provide a model (name, or filename for a custom model)")
 
     name = sys.argv[1]
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         for name in MODELS:
             model = load_model(name)
             ocs, pcs = metrics_from_model(model, nb_perms=50)
-            print("Sucessfully computed the OCS and PCS metrics from", str(name))
+            print("# Sucessfully computed the OCS and PCS metrics from", str(name))
             save_metrics(ocs, pcs, name)
 
     else:
@@ -162,5 +162,5 @@ if __name__ == "__main__":
             nb_perms = 50
 
         ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-        print("Sucessfully computed the OCS and PCS metrics from", str(name))
+        print("# Sucessfully computed the OCS and PCS metrics from", str(name))
         save_metrics(ocs, pcs, name)
