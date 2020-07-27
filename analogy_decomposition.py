@@ -132,11 +132,11 @@ def decompo(model, pairs_sets, vocabulary, decomposition='all'):
         return (delta_sim(start_words, end_words))
 
 def save_decompo(names, results, decomposition):
-    if decomposition == 'decomposition': columns = ['Categories','b*b\'', 'o_a*o_b', 'o_a*b']
-    if decomposition == 'decomposition_ref': columns = ['Categories','b*analogy', 'o_a*b', 'o_a^2']
-    if decomposition == 'delta_sim': columns = ['Categories','b*analogy', 'o_a*o_b', 'o_a*b']
-
-    df = pd.DataFrame([names,results[0],results[1],results[2]], columns=columns)
+    if decomposition == 'decomposition': columns = ['Categories', 'b*b\'', 'o_a*o_b', 'o_a*b']
+    if decomposition == 'decomposition_ref': columns = ['Categories', 'b*analogy', 'o_a*b', 'o_a^2']
+    if decomposition == 'delta_sim': columns = ['Categories', 'b*analogy', 'o_a*o_b', 'o_a*b']
+    print(len(names), len(results[0]), len(results[1]), len(results[2]))
+    df = pd.DataFrame(np.array([names,results[0],results[1],results[2]]), columns=columns)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(decomposition) + '-' + str(timestr) + '.csv'
