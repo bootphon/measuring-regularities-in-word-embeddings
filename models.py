@@ -111,6 +111,7 @@ def load_model_fromlist(name):
 
 
 def load_model_custom(model_path, binary=False):
+    print("# Loading custom model: ", model_path)
     if not exists(join(PATH, model_path)):
         raise Exception('# Model not found in /models: ', model_path)
     if model_path[-5:] == 'model':
