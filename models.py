@@ -25,14 +25,17 @@ def download_model(name):
     if not name in MODELS:
         raise Exception(str(name) + ' not a model in the list')
     if not exists(PATH):
+        print(str(PATH), "not found, creating dir.")
         mkdir(PATH)
     print('# Downloading model: ' + str(name))
     name_path = MODEL_PATH_DICT[name]
     if name == 'word2vec':
         wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+        print('# Downloaded word2vec')
         shutil.move(name_path, join(PATH, name_path))
     if name == 'glove':
         wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
+        print('# Downloaded glove')
         zip = zipfile.ZipFile('./glove.840B.300d.zip')
         zip.extractall()
         tmp_file = get_tmpfile("./glove_gensim.txt")
@@ -40,19 +43,23 @@ def download_model(name):
         shutil.move(name_path, join(PATH, name_path))
     if name == 'dict2vec':
         wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
+        print('# Downloaded dict2vec')
         shutil.move(name_path, join(PATH, name_path))
         tar = tarfile.open("dict2vec300.tar.bz2")
         tar.extractall()
         tar.close()
     if name == 'conceptnet':
         wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+        print('# Downloaded Conceptnet Numberbatch')
         shutil.move(name_path, join(PATH, name_path))
     if name == 'bert':
         _ = BertTokenizer.from_pretrained('bert-large-uncased')
         _ = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
+        print('# Downloaded bert')
     if name == 'gpt2':
         _ = GPT2Tokenizer.from_pretrained('gpt2')
         _ = GPT2LMHeadModel.from_pretrained('gpt2').transformer.wte.weight.data.numpy()
+        print('# Downloaded gpt-2')
 
 
 def download_all():
