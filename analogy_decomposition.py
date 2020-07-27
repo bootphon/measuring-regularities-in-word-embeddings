@@ -151,7 +151,7 @@ if __name__ == "__main__":
         raise("# Please provide a decomposition type (decomposition, decomposition_ref, delta_sim or all)")
 
     model_name = str(sys.argv[1])
-    decomposition = str(sys.argv[1])
+    decomposition = str(sys.argv[2])
 
     print("Model: ", model_name, " ; Decomposition: ", decomposition)
 
