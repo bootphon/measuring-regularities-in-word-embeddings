@@ -150,8 +150,10 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         raise("# Please provide a decomposition type (decomposition, decomposition_ref, delta_sim or all)")
 
-    model_name = sys.argv[1]
-    decomposition = sys.argv[1]
+    model_name = str(sys.argv[1])
+    decomposition = str(sys.argv[1])
+
+    print("Model: ", model_name, " ; Decomposition: ", decomposition)
 
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
     print('# Loading model for decompositions')
@@ -159,7 +161,7 @@ if __name__ == "__main__":
     vocabulary = vocabulary_model(model)
 
     print('# Computing the decompositions')
-    results = decompo(model, pairs_sets, vocabulary, decomposition='all')
+    results = decompo(model, pairs_sets, vocabulary, decomposition=decomposition)
 
     print('# Saving the decompositions')
     if decomposition == 'all':
