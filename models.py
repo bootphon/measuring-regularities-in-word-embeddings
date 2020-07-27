@@ -32,37 +32,38 @@ def download_model(name):
     name_path = MODEL_PATH_DICT[name]
     if name == 'word2vec':
         if not exists(join(PATH, name_path)):
-            #wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded word2vec')
         else:
             print('Already downloaded')
-        shutil.move(name_path, join(PATH, name_path))
     if name == 'glove':
         if not exists(join(PATH, name_path)):
-            #wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
+            wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
+            zip = zipfile.ZipFile('./glove.840B.300d.zip')
+            zip.extractall()
+            _ = glove2word2vec('./glove.840B.300d.txt', join(PATH, name_path))
             print('# Downloaded glove')
         else:
             print('Already downloaded')
-        zip = zipfile.ZipFile('./glove.840B.300d.zip')
-        zip.extractall()
-        _ = glove2word2vec('./glove.840B.300d.txt', join(PATH, name_path))
     if name == 'dict2vec':
         if not exists(join(PATH, name_path)):
-            wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
+            #wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
+            tar = tarfile.open("dict2vec300.tar.bz2")
+            tar.extractall()
+            tar.close()
+            shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded dict2vec')
         else:
             print('Already downloaded')
-        shutil.move(name_path, join(PATH, name_path))
-        tar = tarfile.open("dict2vec300.tar.bz2")
-        tar.extractall()
-        tar.close()
+
     if name == 'conceptnet':
         if not exists(join(PATH, name_path)):
             wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded Conceptnet Numberbatch')
         else:
             print('Already downloaded')
-        shutil.move(name_path, join(PATH, name_path))
     if name == 'bert':
         _ = BertTokenizer.from_pretrained('bert-large-uncased')
         _ = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
