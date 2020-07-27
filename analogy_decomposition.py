@@ -136,7 +136,7 @@ def save_decompo(names, results, decomposition):
     if decomposition == 'decomposition_ref': columns = ['Categories','b*analogy', 'o_a*b', 'o_a^2']
     if decomposition == 'delta_sim': columns = ['Categories','b*analogy', 'o_a*o_b', 'o_a*b']
 
-    df = pd.DataFrame(names+results, columns=columns)
+    df = pd.DataFrame([names,results], columns=columns)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(decomposition) + '-' + str(timestr) + '.csv'
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     model_name = str(sys.argv[1])
     decomposition = str(sys.argv[2])
 
-    print("Model: ", model_name, " ; Decomposition: ", decomposition)
+    print("# Model: ", model_name, " ; Decomposition: ", decomposition)
 
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
     print('# Loading model for decompositions')
