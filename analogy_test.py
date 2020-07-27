@@ -277,5 +277,5 @@ def bats_test(model):
     results = []
     for d in os.listdir('../BATS_3.0'):
         if d != 'metadata.json':
-            results.append(evaluate_word_analogies_bats(model.wv, directory=d))
+            results.append(evaluate_word_analogies_bats(model, directory=d))
     return (results)

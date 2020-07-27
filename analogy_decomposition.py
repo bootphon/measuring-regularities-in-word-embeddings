@@ -136,7 +136,7 @@ def save_decompo(names, results, decomposition):
     if decomposition == 'decomposition_ref': columns = ['Categories','b*analogy', 'o_a*b', 'o_a^2']
     if decomposition == 'delta_sim': columns = ['Categories','b*analogy', 'o_a*o_b', 'o_a*b']
 
-    df = pd.DataFrame([names,results], columns=columns)
+    df = pd.DataFrame([names,results[0],results[1],results[2]], columns=columns)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(decomposition) + '-' + str(timestr) + '.csv'

@@ -47,7 +47,7 @@ def permutation_onecycle_avoidtrue(n, real): #May be a more optimal way
 
 def shuffled_directions(model, idx_start, idx_end):
     perm_list = permutation_onecycle(len(idx_start))
-    dirs = np.array([[model.wv.get_vector(idx_end[perm_list[i]]) - model.wv.get_vector(idx_start[i])
+    dirs = np.array([[model.get_vector(idx_end[perm_list[i]]) - model.get_vector(idx_start[i])
                                           for i in range(len(idx_start))]])
     return(dirs)
 
@@ -82,7 +82,7 @@ def word_embedding(model, word):
         embedding = token_embedding(tokenizer, model, word)
     else:
         # gensim based model
-        embedding = model.wv.get_vector(word)
+        embedding = model.get_vector(word)
     return(embedding)
 
 def offsets(model, pairs_sets):

@@ -125,7 +125,7 @@ def load_model(name, binary=False):
         return(load_model_custom(name, binary))
 
 def vocabulary_model(model):
-    vocabulary_keys = model.wv.vocab.keys()
+    vocabulary_keys = model.vocab.keys()
     vocabulary_set = set(vocabulary_keys)  # , np.array(list(vocabulary_keys))
     return (vocabulary_set)
 
