@@ -9,7 +9,9 @@ import gensim
 import wget
 from gensim.scripts.glove2word2vec import glove2word2vec
 from gensim.test.utils import get_tmpfile
+from gensim.models.word2vec import Word2Vec
 from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
+
 
 PATH = 'models'
 
@@ -111,6 +113,8 @@ def load_model_fromlist(name):
 def load_model_custom(model_path, binary=False):
     if not exists(join(PATH, model_path)):
         raise Exception('# Model not found in /models: ', model_path)
+    if model_path[-5:] == 'model':
+       return (Word2Vec.load(join(PATH, model_path)))
     return (gensim.models.KeyedVectors.load_word2vec_format(join(PATH, model_path), binary=binary))
 
 def load_model(name, binary=False):
