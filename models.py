@@ -59,7 +59,7 @@ def download_model(name):
 
     if name == 'conceptnet':
         if not exists(join(PATH, name_path)):
-            wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            wget.download('https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-en-19.08.txt.gz')
             shutil.move(name_path, join(PATH, name_path))
             print('# Downloaded Conceptnet Numberbatch')
         else:
