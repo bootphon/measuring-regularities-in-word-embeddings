@@ -3,6 +3,7 @@ import tarfile
 import zipfile
 from os.path import join, exists
 from os import mkdir
+import sys
 
 import gensim
 import wget
@@ -10,7 +11,7 @@ from gensim.scripts.glove2word2vec import glove2word2vec
 from gensim.test.utils import get_tmpfile
 from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
 
-PATH = '.models'
+PATH = 'models'
 
 MODELS = ['word2vec', 'glove', 'dict2vec', 'conceptnet', 'bert', 'gpt2']
 MODEL_PATH_DICT = {'word2vec': 'GoogleNews-vectors-negative300.bin.gz',
@@ -30,27 +31,37 @@ def download_model(name):
     print('# Downloading model: ' + str(name))
     name_path = MODEL_PATH_DICT[name]
     if name == 'word2vec':
-        wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
-        print('# Downloaded word2vec')
+        if not exists(join(PATH, name_path)):
+            #wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            print('# Downloaded word2vec')
+        else:
+            print('Already downloaded')
         shutil.move(name_path, join(PATH, name_path))
     if name == 'glove':
-        wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
-        print('# Downloaded glove')
+        if not exists(join(PATH, name_path)):
+            #wget.download('http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip')
+            print('# Downloaded glove')
+        else:
+            print('Already downloaded')
         zip = zipfile.ZipFile('./glove.840B.300d.zip')
         zip.extractall()
-        tmp_file = get_tmpfile("./glove_gensim.txt")
-        _ = glove2word2vec('./glove.840B.300d.txt', tmp_file)
-        shutil.move(name_path, join(PATH, name_path))
+        _ = glove2word2vec('./glove.840B.300d.txt', join(PATH, name_path))
     if name == 'dict2vec':
-        wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
-        print('# Downloaded dict2vec')
+        if not exists(join(PATH, name_path)):
+            wget.download('https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2')
+            print('# Downloaded dict2vec')
+        else:
+            print('Already downloaded')
         shutil.move(name_path, join(PATH, name_path))
         tar = tarfile.open("dict2vec300.tar.bz2")
         tar.extractall()
         tar.close()
     if name == 'conceptnet':
-        wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
-        print('# Downloaded Conceptnet Numberbatch')
+        if not exists(join(PATH, name_path)):
+            wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
+            print('# Downloaded Conceptnet Numberbatch')
+        else:
+            print('Already downloaded')
         shutil.move(name_path, join(PATH, name_path))
     if name == 'bert':
         _ = BertTokenizer.from_pretrained('bert-large-uncased')
@@ -100,6 +111,11 @@ def load_model_custom(model_path, binary=False):
         raise Exception('Model not found in /models: ', model_path)
     return (gensim.models.KeyedVectors.load_word2vec_format(join(PATH, model_path), binary=binary))
 
+def load_model(name, binary=False):
+    if name in MODELS:
+        return(load_model_fromlist(name))
+    else:
+        return(load_model_custom(name, binary))
 
 def vocabulary_model(model):
     vocabulary_keys = model.wv.vocab.keys()
@@ -123,7 +139,11 @@ def clean_pairs(model, pairs_sets):
 
 if __name__ == "__main__":
     # execute only if run as a script
-    download_all()
+    if len(sys.argv) == 1:
+        download_all()
+    else:
+        name = sys.argv[1]
+        download_model(name)
 
 # word2vec
 # wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')

@@ -1,9 +1,13 @@
 import numpy as np
 import sklearn
 
+import sys
+import pandas as pd
+import time
+
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 
-from models import clean_pairs
+from models import clean_pairs, load_model
 from read_bats import bats_names_pairs
 
 def token_embedding(tokenizer, model, word):
@@ -123,3 +127,30 @@ def metrics_from_model(model, nb_perms=50):
 
     return (ocs, pcs)
 
+if __name__ == "__main__":
+    # execute only if run as a script
+    if len(sys.argv) < 2:
+        raise("Please provide a model (name, or filename for a custom model)")
+
+    name = sys.argv[1]
+    model = load_model(name)
+
+    if len(sys.argv) > 2:
+        nb_perms = sys.argv[2]
+    else:
+        nb_perms = 50
+
+    ocs, pcs = metrics_from_model(model, nb_perms=50)
+
+    print("Sucessfully computed the OCS and PCS metrics from", str(name))
+
+    df_ocs = pd.DataFrame(ocs, columns=["colummn"])
+    df_pcs = pd.DataFrame(pcs, columns=["colummn"])
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    namepath = str(name) + '-' + str(timestr) + '.csv'
+
+    df_ocs.to_csv('ocs-'+namepath, index=False)
+    df_pcs.to_csv('pcs-'+namepath, index=False)
+
+    print("Sucessfully saved the metrics to ocs/pcs-", str(namepath))
