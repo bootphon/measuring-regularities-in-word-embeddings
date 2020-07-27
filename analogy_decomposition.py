@@ -154,11 +154,14 @@ if __name__ == "__main__":
     decomposition = sys.argv[1]
 
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
+    print('# Loading model for decompositions')
     model = load_model(model_name)
     vocabulary = vocabulary_model(model)
 
+    print('# Computing the decompositions')
     results = decompo(model, pairs_sets, vocabulary, decomposition='all')
 
+    print('# Saving the decompositions')
     if decomposition == 'all':
         save_decompo(names, results[0], 'decomposition')
         save_decompo(names, results[1], 'decomposition_ref')
