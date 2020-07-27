@@ -63,6 +63,7 @@ def similarite_offsets(list_offsets):
 
 def OCS_PCS(nb_perm, similarities, similarities_shuffle):
     ocs, pcs = [], []
+    print('# Computing the OCS and PCS metrics')
     for i in range(len(similarities)):
         pcs_list = []
         for perm in range(nb_perm):
@@ -106,11 +107,12 @@ def shuffled_offsets(model, pairs_sets, nb_perms=50, avoid_true=True):
     return (shf_offsets)
 
 def normal_and_shuffled_offsets(model, pairs_sets, nb_perms=50):
+    print('# Computing the normal and shuffled offsets')
     pairs_sets = clean_pairs(model, pairs_sets)
 
     normal_offsets = offsets(model, pairs_sets)
     shf_offsets = shuffled_offsets(model, pairs_sets, nb_perms=nb_perms)
-
+    print('# Computed the normal and shuffled offsets')
     return(normal_offsets, shf_offsets)
 
 
@@ -119,17 +121,18 @@ def metrics_from_model(model, nb_perms=50):
 
     normal_offsets, shf_offsets = normal_and_shuffled_offsets(model, pairs_sets, nb_perms=nb_perms)
 
+    print('# Computing the similarities of the normal and shuffled offsets')
     similarities = similarite_offsets(normal_offsets)
     similarities_shuffle = [similarite_offsets(np.array(shf_offsets)[:, perm])
                             for perm in range(nb_perms)]
 
     ocs, pcs = OCS_PCS(nb_perms, similarities, similarities_shuffle)
 
-    return (ocs, pcs)
+    return (names, ocs, pcs)
 
-def save_metrics(ocs, pcs, name):
-    df_ocs = pd.DataFrame(ocs, columns=["colummn"])
-    df_pcs = pd.DataFrame(pcs, columns=["colummn"])
+def save_metrics(ocs, pcs, name, names):
+    df_ocs = pd.DataFrame([names, ocs], columns=["Categories", "OCS"])
+    df_pcs = pd.DataFrame([names, pcs], columns=["Categories", "PCS"])
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(name) + '-' + str(timestr) + '.csv'
@@ -137,7 +140,7 @@ def save_metrics(ocs, pcs, name):
     df_ocs.to_csv('ocs-' + namepath, index=False)
     df_pcs.to_csv('pcs-' + namepath, index=False)
 
-    print("# Sucessfully saved the metrics to ocs/pcs-", str(namepath))
+    print("# Successfully saved the metrics to ocs/pcs-", str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script
@@ -147,11 +150,16 @@ if __name__ == "__main__":
     name = sys.argv[1]
 
     if name == 'all':
+        if len(sys.argv) > 2:
+            nb_perms = sys.argv[2]
+        else:
+            nb_perms = 50
+
         for name in MODELS:
             model = load_model(name)
-            ocs, pcs = metrics_from_model(model, nb_perms=50)
+            names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
             print("# Sucessfully computed the OCS and PCS metrics from", str(name))
-            save_metrics(ocs, pcs, name)
+            save_metrics(ocs, pcs, name, names)
 
     else:
         model = load_model(name)
@@ -161,6 +169,6 @@ if __name__ == "__main__":
         else:
             nb_perms = 50
 
-        ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-        print("# Sucessfully computed the OCS and PCS metrics from", str(name))
-        save_metrics(ocs, pcs, name)
+        names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
+        print("# Successfully computed the OCS and PCS metrics from", str(name))
+        save_metrics(ocs, pcs, name, names)
