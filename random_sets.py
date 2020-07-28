@@ -38,8 +38,15 @@ import transformers
 
 from metrics import permutation_onecycle, similarite_offsets, normal_and_shuffled_offsets, OCS_PCS
 from read_bats import vocab_bats, bats_names_pairs
-from models import vocabulary_model
+from models import vocabulary_model, load_model, MODELS
 
+
+import sys
+import pandas as pd
+import time
+
+from os.path import exists
+from os import mkdir
 
 def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_random_categ=50, limit_word=10000):
     vocabulary_list = list(vocabulary)
@@ -395,26 +402,39 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random, simi
     ocs_random_full, pcs_random_full = metrics_tmp[:, 0], metrics_tmp[:, 1]
 
     ocs_all = (ocs,
-               ocs_permutation_within,
-               ocs_mismatched_within,
-               ocs_mismatched_across,
-               ocs_random_start,
-               ocs_random_end,
-               ocs_random_full)
+               np.mean(ocs_permutation_within, axis=0),
+               np.mean(ocs_mismatched_within, axis=0),
+               np.mean(ocs_mismatched_across, axis=0),
+               np.mean(ocs_random_start, axis=0),
+               np.mean(ocs_random_end, axis=0),
+               np.mean(ocs_random_full, axis=0))
 
     pcs_all = (pcs,
-               pcs_permutation_within,
-               pcs_mismatched_within,
-               pcs_mismatched_across,
-               pcs_random_start,
-               pcs_random_end,
-               pcs_random_full)
+               np.mean(pcs_permutation_within, axis=0),
+               np.mean(pcs_mismatched_within, axis=0),
+               np.mean(pcs_mismatched_across, axis=0),
+               np.mean(pcs_random_start, axis=0),
+               np.mean(pcs_random_end, axis=0),
+               np.mean(pcs_random_full, axis=0))
 
     return(ocs_all, pcs_all)
 
-def metrics_random_from_model(model, nb_perms=50, nb_random=50, size_random_categ=50, limit_word=10000):
+def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_categ=50, limit_word=10000):
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
     vocabulary = vocabulary_model(model)
+
+    names_all = names
+    for n in names:
+        names_all.append("Permutation within: ", n)
+    for n in names:
+        names_all.append("Mismatched within: ", n)
+    for n in names:
+        names_all.append("Mismatched across: ", n)
+    for n in names:
+        names_all.append("Random start: ", n)
+    for n in names:
+        names_all.append("Random end: ", n)
+    names_all.append("Random full", n)
 
     normal_offsets, shf_offsets = normal_and_shuffled_offsets(model,
                                                               pairs_sets, nb_perms=nb_perms)
@@ -445,4 +465,58 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=50, size_random_cate
                                       similarities_random_shuffle,
                                       nb_random=nb_random, nb_perms=nb_perms)
 
-    return (ocs_all, pcs_all)
+    return (names_all, ocs_all, pcs_all)
+
+def save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random):
+    if not exists('results'):
+        print("# ", str('results'), "not found, creating dir.")
+        mkdir('results')
+
+    df_ocs = pd.DataFrame(np.array([names_all, ocs_all]).T, columns=np.array(["Categories", "OCS"]))
+    df_pcs = pd.DataFrame(np.array([names_all, pcs_all]).T, columns=np.array(["Categories", "PCS"]))
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    namepath = str(name) + '-' + nb_perms + '_perms-' + nb_random + '_random-' + str(timestr) + '.csv'
+
+    df_ocs.to_csv('results/random_ocs-' + namepath, index=False)
+    df_pcs.to_csv('results/random_pcs-' + namepath, index=False)
+
+    print("# Successfully saved the random metrics to ocs/pcs-", str(namepath))
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    if len(sys.argv) < 2:
+        raise("# Please provide a model (all, name, or filename for a custom model)")
+
+    name = sys.argv[1]
+
+    if len(sys.argv) > 2:
+        nb_perms = sys.argv[2]
+    else:
+        nb_perms = 50
+    if len(sys.argv) > 3:
+        nb_random = sys.argv[3]
+    else:
+        nb_random = 10
+
+    if name == 'all':
+        for name in MODELS:
+            model = load_model(name)
+            names_all, ocs_all, pcs_all = metrics_random_from_model(model,
+                                                                    nb_perms=nb_perms,
+                                                                    nb_random=nb_random,
+                                                                    size_random_categ=50,
+                                                                    limit_word=10000)
+            print("# Sucessfully computed the random OCS and PCS metrics from ", str(name))
+            save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random)
+
+    else:
+        model = load_model(name)
+
+        names_all, ocs_all, pcs_all = metrics_random_from_model(model,
+                                                                nb_perms=nb_perms,
+                                                                nb_random=nb_random,
+                                                                size_random_categ=50,
+                                                                limit_word=10000)
+        print("# Sucessfully computed the random OCS and PCS metrics from ", str(name))
+        save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random)

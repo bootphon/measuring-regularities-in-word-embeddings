@@ -108,7 +108,7 @@ def most_similar(model, positive=None, negative=None, topn=10, restrict_vocab=No
 
 def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_insensitive=True, dummy4unknown=False):
     logger = logging.getLogger(__name__)
-    print("# Computing analogy scores for model: ", str(model), "and category type: ", str(directory))
+    print("# Computing analogy scores for category type: ", str(directory))
 
     ok_vocab = [(w, model.vocab[w]) for w in model.index2word[:restrict_vocab]]
     ok_vocab = {w.upper(): v for w, v in reversed(ok_vocab)} if case_insensitive else dict(ok_vocab)
@@ -123,10 +123,10 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
     scores_bats = [] #dict()
     scores_bats_vanilla = [] #dict()
 
-    for f in os.listdir('../BATS_3.0/' + str(directory)):
+    for f in os.listdir('BATS_3.0/' + str(directory)): #..
         directions_names_bats.append(str(f)[:-4])
         pairs_sets.append(set())
-        with utils.open_file('../BATS_3.0/' + str(directory) + '/' + str(f)) as fin:
+        with utils.open_file('BATS_3.0/' + str(directory) + '/' + str(f)) as fin:
             for line_no, line in enumerate(fin):
                 line = utils.to_unicode(line)
                 a, b = [word.lower() for word in line.split()]
@@ -143,7 +143,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
             if correct + incorrect > 0:
                 score = correct / (correct + incorrect)
                 logger.info("%s: %.1f%% (%i/%i)", section['section'], 100.0 * score, correct, correct + incorrect)
-                scores_bats.append([section['section'], 100.0 * score, correct, correct + incorrect])
+                scores_bats.append([section['section'], score, correct, correct + incorrect])
             else:
                 print('No score for ', section['section'])
             correct, incorrect = len(section['correct_vanilla']), len(section['incorrect_vanilla'])
@@ -151,7 +151,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
                 score = correct / (correct + incorrect)
                 logger.info("%s: %.1f%% (%i/%i) VANILLA", section['section'], 100.0 * score, correct,
                             correct + incorrect)
-                scores_bats_vanilla.append([section['section'],100.0 * score, correct, correct + incorrect])
+                scores_bats_vanilla.append([section['section'], score, correct, correct + incorrect])
             total_section = len(section['correct_vanilla']) + len(section['incorrect_vanilla'])
             if total_section > 0:
                 logger.info('Number of predictions equal to a: %i (%d), a*: %i (%d), b: %i (%d)',
@@ -230,14 +230,14 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
         if correct + incorrect > 0:
             score = correct / (correct + incorrect)
             logger.info("%s: %.1f%% (%i/%i)", section['section'], 100.0 * score, correct, correct + incorrect)
-            scores_bats.append([section['section'], 100.0 * score, correct, correct + incorrect])
+            scores_bats.append([section['section'], score, correct, correct + incorrect])
         else:
             print('No score for ', section['section'])
         correct, incorrect = len(section['correct_vanilla']), len(section['incorrect_vanilla'])
         if correct + incorrect > 0:
             score = correct / (correct + incorrect)
             logger.info("%s: %.1f%% (%i/%i) VANILLA", section['section'], 100.0 * score, correct, correct + incorrect)
-            scores_bats_vanilla.append([section['section'], 100.0 * score, correct, correct + incorrect])
+            scores_bats_vanilla.append([section['section'], score, correct, correct + incorrect])
 
         total_section = len(section['correct_vanilla']) + len(section['incorrect_vanilla'])
         if total_section > 0:
@@ -267,7 +267,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
     if correct + incorrect > 0:
         score = correct / (correct + incorrect)
         logger.info("%s: %.1f%% (%i/%i)", total['section'], 100.0 * score, correct, correct + incorrect)
-        total_score = ["# Total " + str(directory), 100.0 * score, correct, correct + incorrect]
+        total_score = ["# Total " + str(directory), score, correct, correct + incorrect]
         analogies_score = score
     correct_vanilla, incorrect_vanilla = len(total['correct_vanilla']), len(total['incorrect_vanilla'])
     # print(total)
@@ -275,7 +275,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
         score = correct_vanilla / (correct_vanilla + incorrect_vanilla)
         logger.info("%s: %.1f%% (%i/%i) VANILLA", total['section'], 100.0 * score, correct_vanilla,
                     correct_vanilla + incorrect_vanilla)
-        total_score_vanilla = ["# Total " + str(directory), 100.0 * score, correct_vanilla, correct_vanilla + incorrect_vanilla]
+        total_score_vanilla = ["# Total " + str(directory), score, correct_vanilla, correct_vanilla + incorrect_vanilla]
         analogies_score = score
 
     sections.append(total)
@@ -328,12 +328,14 @@ if __name__ == "__main__":
     if name == 'all':
         for name in MODELS:
             model = load_model(name)
+            print("# Computing the analogy test accuracy from ", str(name))
             results = bats_test(model)
             print("# Sucessfully computed the analogy test accuracy from ", str(name))
             save_analogy_test(results)
 
     else:
         model = load_model(name)
+        print("# Computing the analogy test accuracy from ", str(name))
         results = bats_test(model)
         print("# Sucessfully computed the analogy test accuracy from ", str(name))
         save_analogy_test(results)

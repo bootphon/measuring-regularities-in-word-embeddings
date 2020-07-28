@@ -142,7 +142,7 @@ def save_metrics(ocs, pcs, name, names):
     df_pcs = pd.DataFrame(np.array([names, pcs]).T, columns=np.array(["Categories", "PCS"]))
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    namepath = str(name) + '-' + str(timestr) + '.csv'
+    namepath = str(name) + '-' + nb_perms + '_perms-'  + str(timestr) + '.csv'
 
     df_ocs.to_csv('results/ocs-' + namepath, index=False)
     df_pcs.to_csv('results/pcs-' + namepath, index=False)
@@ -156,26 +156,20 @@ if __name__ == "__main__":
 
     name = sys.argv[1]
 
-    if name == 'all':
-        if len(sys.argv) > 2:
-            nb_perms = sys.argv[2]
-        else:
-            nb_perms = 50
+    if len(sys.argv) > 2:
+        nb_perms = sys.argv[2]
+    else:
+        nb_perms = 50
 
+    if name == 'all':
         for name in MODELS:
             model = load_model(name)
             names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
             print("# Sucessfully computed the OCS and PCS metrics from ", str(name))
-            save_metrics(ocs, pcs, name, names)
+            save_metrics(ocs, pcs, name, names, nb_perms)
 
     else:
         model = load_model(name)
-
-        if len(sys.argv) > 2:
-            nb_perms = sys.argv[2]
-        else:
-            nb_perms = 50
-
         names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
         print("# Successfully computed the OCS and PCS metrics from ", str(name))
-        save_metrics(ocs, pcs, name, names)
+        save_metrics(ocs, pcs, name, names, nb_perms)
