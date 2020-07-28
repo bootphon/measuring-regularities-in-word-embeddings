@@ -133,7 +133,7 @@ def metrics_from_model(model, nb_perms=50):
 
     return (names, ocs, pcs)
 
-def save_metrics(ocs, pcs, name, names):
+def save_metrics(ocs, pcs, name, names, nb_perms):
     if not exists('results'):
         print("# ", str('results'), "not found, creating dir.")
         mkdir('results')
@@ -165,11 +165,11 @@ if __name__ == "__main__":
         for name in MODELS:
             model = load_model(name)
             names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-            print("# Sucessfully computed the OCS and PCS metrics from ", str(name))
+            print("# Sucessfully computed the OCS and PCS metrics from", str(name))
             save_metrics(ocs, pcs, name, names, nb_perms)
 
     else:
         model = load_model(name)
         names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-        print("# Successfully computed the OCS and PCS metrics from ", str(name))
+        print("# Successfully computed the OCS and PCS metrics from", str(name))
         save_metrics(ocs, pcs, name, names, nb_perms)

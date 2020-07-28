@@ -527,7 +527,7 @@ if __name__ == "__main__":
                                                                     nb_random=nb_random,
                                                                     size_random_categ=50,
                                                                     limit_word=10000)
-            print("# Sucessfully computed the random OCS and PCS metrics from ", str(name))
+            print("# Sucessfully computed the random OCS and PCS metrics from", str(name))
             save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random)
 
     else:
@@ -538,5 +538,5 @@ if __name__ == "__main__":
                                                                 nb_random=nb_random,
                                                                 size_random_categ=50,
                                                                 limit_word=10000)
-        print("# Sucessfully computed the random OCS and PCS metrics from ", str(name))
+        print("# Sucessfully computed the random OCS and PCS metrics from", str(name))
         save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random)
