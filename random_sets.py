@@ -438,7 +438,8 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random, simi
     return(ocs_all, pcs_all)
 
 def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_categ=50, limit_word=10000):
-    names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
+    names, pairs_sets_set = bats_names_pairs(dir="BATS_3.0")
+    pairs_sets = [list(pairs_sets_set[i]) for i in range(len(pairs_sets_set))]
     vocabulary = vocabulary_model(model)
 
     names_all = []
