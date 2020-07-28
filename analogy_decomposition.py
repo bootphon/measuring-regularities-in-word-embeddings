@@ -5,6 +5,9 @@ import sys
 from read_bats import bats_names_pairs
 from models import vocabulary_model, load_model
 
+from os.path import exists
+from os import mkdir
+
 def start_end_words(model, pairs_sets, vocabulary):
     start_words = np.array(
         [[model.wv.get_vector(i[0]) for i in pairs_sets[k] if i[0] in vocabulary and i[1] in vocabulary]
@@ -139,8 +142,11 @@ def save_decompo(names, results, decomposition):
     r = np.array([names,results[0],results[1],results[2]])
     df = pd.DataFrame(r.T, columns=columns)
 
+    if not exists('results'):
+        print("# ", str('results'), "not found, creating dir.")
+        mkdir('results')
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    namepath = str(decomposition) + '-' + str(timestr) + '.csv'
+    namepath = 'results/' + str(decomposition) + '-' + str(timestr) + '.csv'
     df.to_csv(namepath, index=False)
     print("# Successfully saved the decomposition to ", str(namepath))
 

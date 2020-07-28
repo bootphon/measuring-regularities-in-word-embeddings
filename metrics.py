@@ -5,6 +5,9 @@ import sys
 import pandas as pd
 import time
 
+from os.path import exists
+from os import mkdir
+
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 
 from models import clean_pairs, load_model, MODELS
@@ -131,21 +134,25 @@ def metrics_from_model(model, nb_perms=50):
     return (names, ocs, pcs)
 
 def save_metrics(ocs, pcs, name, names):
+    if not exists('results'):
+        print("# ", str('results'), "not found, creating dir.")
+        mkdir('results')
+
     df_ocs = pd.DataFrame(np.array([names, ocs]).T, columns=np.array(["Categories", "OCS"]))
     df_pcs = pd.DataFrame(np.array([names, pcs]).T, columns=np.array(["Categories", "PCS"]))
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(name) + '-' + str(timestr) + '.csv'
 
-    df_ocs.to_csv('ocs-' + namepath, index=False)
-    df_pcs.to_csv('pcs-' + namepath, index=False)
+    df_ocs.to_csv('results/ocs-' + namepath, index=False)
+    df_pcs.to_csv('results/pcs-' + namepath, index=False)
 
     print("# Successfully saved the metrics to ocs/pcs-", str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script
     if len(sys.argv) < 2:
-        raise("# Please provide a model (name, or filename for a custom model)")
+        raise("# Please provide a model (all, name, or filename for a custom model)")
 
     name = sys.argv[1]
 
@@ -158,7 +165,7 @@ if __name__ == "__main__":
         for name in MODELS:
             model = load_model(name)
             names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-            print("# Sucessfully computed the OCS and PCS metrics from", str(name))
+            print("# Sucessfully computed the OCS and PCS metrics from ", str(name))
             save_metrics(ocs, pcs, name, names)
 
     else:
@@ -170,5 +177,5 @@ if __name__ == "__main__":
             nb_perms = 50
 
         names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
-        print("# Successfully computed the OCS and PCS metrics from", str(name))
+        print("# Successfully computed the OCS and PCS metrics from ", str(name))
         save_metrics(ocs, pcs, name, names)

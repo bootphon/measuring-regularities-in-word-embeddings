@@ -44,6 +44,16 @@ from gensim.scripts.glove2word2vec import glove2word2vec
 from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
 
 
+import sys
+import pandas as pd
+import time
+
+from os.path import exists
+from os import mkdir
+
+from read_bats import bats_names_pairs
+from models import vocabulary_model, load_model, MODELS
+
 ## Version modifiée de gensim, peut être à verifier quels sont les changements exactement (le but est principalement d'autorizer la version vanilla)
 def most_similar(model, positive=None, negative=None, topn=10, restrict_vocab=None, indexer=None, ignore=True):
     if positive is None:
@@ -109,8 +119,8 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
     directions_names_bats = []
     pairs_sets = []
 
-    scores_bats = dict()
-    scores_bats_vanilla = dict()
+    scores_bats = [] #dict()
+    scores_bats_vanilla = [] #dict()
 
     for f in os.listdir('../BATS_3.0/' + str(directory)):
         directions_names_bats.append(str(f)[:-4])
@@ -132,7 +142,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
             if correct + incorrect > 0:
                 score = correct / (correct + incorrect)
                 logger.info("%s: %.1f%% (%i/%i)", section['section'], 100.0 * score, correct, correct + incorrect)
-                scores_bats[section['section']] = [100.0 * score, correct, correct + incorrect]
+                scores_bats.append([section['section'], 100.0 * score, correct, correct + incorrect])
             else:
                 print('No score for ', section['section'])
             correct, incorrect = len(section['correct_vanilla']), len(section['incorrect_vanilla'])
@@ -140,7 +150,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
                 score = correct / (correct + incorrect)
                 logger.info("%s: %.1f%% (%i/%i) VANILLA", section['section'], 100.0 * score, correct,
                             correct + incorrect)
-                scores_bats_vanilla[section['section']] = [100.0 * score, correct, correct + incorrect]
+                scores_bats_vanilla.append([section['section'],100.0 * score, correct, correct + incorrect])
             total_section = len(section['correct_vanilla']) + len(section['incorrect_vanilla'])
             if total_section > 0:
                 logger.info('Number of predictions equal to a: %i (%d), a*: %i (%d), b: %i (%d)',
@@ -219,14 +229,14 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
         if correct + incorrect > 0:
             score = correct / (correct + incorrect)
             logger.info("%s: %.1f%% (%i/%i)", section['section'], 100.0 * score, correct, correct + incorrect)
-            scores_bats[section['section']] = [100.0 * score, correct, correct + incorrect]
+            scores_bats.append([section['section'], 100.0 * score, correct, correct + incorrect])
         else:
             print('No score for ', section['section'])
         correct, incorrect = len(section['correct_vanilla']), len(section['incorrect_vanilla'])
         if correct + incorrect > 0:
             score = correct / (correct + incorrect)
             logger.info("%s: %.1f%% (%i/%i) VANILLA", section['section'], 100.0 * score, correct, correct + incorrect)
-            scores_bats_vanilla[section['section']] = [100.0 * score, correct, correct + incorrect]
+            scores_bats_vanilla.append([section['section'], 100.0 * score, correct, correct + incorrect])
 
         total_section = len(section['correct_vanilla']) + len(section['incorrect_vanilla'])
         if total_section > 0:
@@ -256,7 +266,7 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
     if correct + incorrect > 0:
         score = correct / (correct + incorrect)
         logger.info("%s: %.1f%% (%i/%i)", total['section'], 100.0 * score, correct, correct + incorrect)
-        total_score = [100.0 * score, correct, correct + incorrect]
+        total_score = ["# Total " + str(directory), 100.0 * score, correct, correct + incorrect]
         analogies_score = score
     correct_vanilla, incorrect_vanilla = len(total['correct_vanilla']), len(total['incorrect_vanilla'])
     # print(total)
@@ -264,13 +274,13 @@ def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_i
         score = correct_vanilla / (correct_vanilla + incorrect_vanilla)
         logger.info("%s: %.1f%% (%i/%i) VANILLA", total['section'], 100.0 * score, correct_vanilla,
                     correct_vanilla + incorrect_vanilla)
-        total_score_vanilla = [100.0 * score, correct_vanilla, correct_vanilla + incorrect_vanilla]
+        total_score_vanilla = ["# Total " + str(directory), 100.0 * score, correct_vanilla, correct_vanilla + incorrect_vanilla]
         analogies_score = score
 
     sections.append(total)
     bats_scores = [total_score, total_score_vanilla, scores_bats, scores_bats_vanilla]
     # Return the overall score and the full lists of correct and incorrect analogies
-    return analogies_score, sections, bats_scores
+    return bats_scores #[analogies_score, sections, bats_scores]
 
 
 def bats_test(model):
@@ -279,3 +289,50 @@ def bats_test(model):
         if d != 'metadata.json':
             results.append(evaluate_word_analogies_bats(model, directory=d))
     return (results)
+
+def save_analogy_test(results):
+    total_results = []
+    total_results_vanilla = []
+    for r in results:
+        t, t_v, s, s_v = r[0], r[1], r[2], r[3]
+        for si in s:
+            total_results.append(si)
+        total_results.append(t)
+        for si_v in s_v:
+            total_results_vanilla.append(si_v)
+        total_results_vanilla.append(t_v)
+
+    columns = ['Categories', 'Accuracy', 'Nb correct', 'Nb total']
+    df = pd.DataFrame(total_results, columns=columns)
+    df_v = pd.DataFrame(total_results_vanilla, columns=columns)
+
+    if not exists('results'):
+        print("# ", str('results'), "not found, creating dir.")
+        mkdir('results')
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    namepath = 'results/' + 'analogy_test' + '-' + str(timestr) + '.csv'
+    namepath_v = 'results/' + 'analogy_test_vanilla' + '-' + str(timestr) + '.csv'
+    df.to_csv(namepath, index=False)
+    df_v.to_csv(namepath_v, index=False)
+
+    print("# Successfully saved the analogy tests to ", str(namepath), "and ", str(namepath_v))
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    if len(sys.argv) < 2:
+        raise("# Please provide a model (all, name, or filename for a custom model)")
+
+    name = sys.argv[1]
+
+    if name == 'all':
+        for name in MODELS:
+            model = load_model(name)
+            results = bats_test(model)
+            print("# Sucessfully computed the analogy test accuracy from ", str(name))
+            save_analogy_test(results)
+
+    else:
+        model = load_model(name)
+        results = bats_test(model)
+        print("# Sucessfully computed the analogy test accuracy from ", str(name))
+        save_analogy_test(results)
