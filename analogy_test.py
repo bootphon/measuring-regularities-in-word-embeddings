@@ -1,7 +1,7 @@
 # Using chrisjmccormick's github for the basic word2vec import
 
 import gensim
-from gensim import utils
+from gensim import utils, matutils
 import gensim.downloader as api
 from gensim.models.word2vec import Word2Vec, Word2VecKeyedVectors
 
@@ -108,6 +108,7 @@ def most_similar(model, positive=None, negative=None, topn=10, restrict_vocab=No
 
 def evaluate_word_analogies_bats(model, directory, restrict_vocab=300000, case_insensitive=True, dummy4unknown=False):
     logger = logging.getLogger(__name__)
+    print("# Computing analogy scores for model: ", str(model), "and category type: ", str(directory))
 
     ok_vocab = [(w, model.vocab[w]) for w in model.index2word[:restrict_vocab]]
     ok_vocab = {w.upper(): v for w, v in reversed(ok_vocab)} if case_insensitive else dict(ok_vocab)
