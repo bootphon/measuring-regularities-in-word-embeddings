@@ -441,7 +441,9 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_cate
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
     vocabulary = vocabulary_model(model)
 
-    names_all = names
+    names_all = []
+    for n in names:
+        names_all.append("Normal: "+ str(n))
     for n in names:
         names_all.append("Permutation within: "+ str(n))
     for n in names:
