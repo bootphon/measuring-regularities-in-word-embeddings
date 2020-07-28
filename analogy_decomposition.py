@@ -135,11 +135,9 @@ def save_decompo(names, results, decomposition):
     if decomposition == 'decomposition': columns = np.array(['Categories', 'b*b\'', 'o_a*o_b', 'o_a*b'])
     if decomposition == 'decomposition_ref': columns = np.array(['Categories', 'b*analogy', 'o_a*b', 'o_a^2'])
     if decomposition == 'delta_sim': columns = np.array(['Categories', 'b*analogy', 'o_a*o_b', 'o_a*b'])
-    print(len(names), len(results[0]), len(results[1]), len(results[2]))
+
     r = np.array([names,results[0],results[1],results[2]])
-    print(r.shape)
-    print(columns.shape)
-    df = pd.DataFrame(np.array([[names,results[0],results[1],results[2]]])[0], columns=columns)
+    df = pd.DataFrame(r.T, columns=columns)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     namepath = str(decomposition) + '-' + str(timestr) + '.csv'
