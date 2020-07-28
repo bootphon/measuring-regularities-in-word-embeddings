@@ -52,7 +52,10 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
     vocabulary_list = list(vocabulary)
     vocab_used = vocab_bats(pairs_sets)
 
+    print("# Computing random offsets")
+
     # a* - a, a et a* de la même catégorie mais permuté
+    print("# Computing random offsets for permutation within")
     perm_lists_permutation_within = []
     offsets_permutation_within = []
     for k_r in range(nb_random):
@@ -70,6 +73,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
                         model.wv.get_vector(dj[1]) - model.wv.get_vector(di[0]))
             perm_lists_permutation_within[-1].append(perm_list)
 
+    print("# Computing random offsets for mismatched within")
     offsets_mismatched_within = []
     perm_lists_mismatched_within = []
     for k_r in range(nb_random):
@@ -93,6 +97,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
                         model.wv.get_vector(dj[1]) - model.wv.get_vector(di[0]))
 
     # a* - a, a et a* de categories différentes, probablement très très grand pour bats!!
+    print("# Computing random offsets for mismatched across")
     offsets_mismatched_across = []
     perm_lists_mismatched_across = []
     for k_r in range(nb_random):
@@ -110,6 +115,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
                 if dj[1] != di[0]:
                     offsets_mismatched_across[-1][-1].append(model.wv.get_vector(dj[1]) - model.wv.get_vector(di[0]))
 
+    print("# Computing the half random offsets")
     # For half random categories
     idx_random_categ = []
     for k_d in range(len(pairs_sets)):
@@ -138,6 +144,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
                                         if pairs_sets[k_d][i][0] in vocabulary]
                                         for k_d in range(len(pairs_sets))] for k_r in range(nb_random)])
 
+    print("# Computing the fully random offsets")
     # For random->random categories
     idx_random_full_start = [np.random.choice(limit_word, size=size_random_categ, replace=False) for k in range(nb_random)]
     idx_random_full_start = np.array(
@@ -190,7 +197,10 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
     idx_random_full_start, \
     idx_random_full_end = idx_randoms
 
+    print("# Computing shuffled offsets")
+
     # a* - a, a et a* de categories différentes, même grande catégorie pour bats probablement très très grand pour bats!!
+    print("# Computing shuffled offsets for mismatched within")
     offsets_mismatched_within_shuffle = []
     for k_r in range(nb_random):
         offsets_mismatched_within_shuffle.append([])
@@ -207,6 +217,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                         for i in range(len_max)]
                 offsets_mismatched_within_shuffle[-1][-1].append(dirs)
 
+    print("# Computing shuffled offsets for mismatched across")
     offsets_mismatched_across_shuffle = []
     for k_r in range(nb_random):
         offsets_mismatched_across_shuffle.append([])
@@ -223,20 +234,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                         for i in range(len_max)]
                 offsets_mismatched_across_shuffle[-1][-1].append(dirs)
 
-    # a* - a, a d'un ensemble random, shuffle
-    offsets_random_end_shuffle = []
-    for k_r in range(nb_random):
-        offsets_random_end_shuffle.append([])
-        for k in range(len(pairs_sets)):
-            offsets_random_end_shuffle[-1].append([])
-            len_max = min(len(pairs_sets[k]), len(idx_random_categ[k][k_r]))
-            for perm in range(nb_perms):
-                perm_list = permutation_onecycle(len_max)
-                dirs = [model.wv.get_vector(idx_random_categ[k][k_r][perm_list[i]]) -
-                        model.wv.get_vector(pairs_sets[k][i][0])
-                        for i in range(len_max)]
-                offsets_random_end_shuffle[-1][-1].append(dirs)
-
+    print("# Computing shuffled offsets for random start")
     offsets_random_start_shuffle = []
     for k_r in range(nb_random):
         print(k_r)
@@ -251,7 +249,24 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                         for i in range(len_max)]
                 offsets_random_start_shuffle[-1][-1].append(dirs)
 
+    # a* - a, a d'un ensemble random, shuffle
+    print("# Computing shuffled offsets for random end")
+    offsets_random_end_shuffle = []
+    for k_r in range(nb_random):
+        offsets_random_end_shuffle.append([])
+        for k in range(len(pairs_sets)):
+            offsets_random_end_shuffle[-1].append([])
+            len_max = min(len(pairs_sets[k]), len(idx_random_categ[k][k_r]))
+            for perm in range(nb_perms):
+                perm_list = permutation_onecycle(len_max)
+                dirs = [model.wv.get_vector(idx_random_categ[k][k_r][perm_list[i]]) -
+                        model.wv.get_vector(pairs_sets[k][i][0])
+                        for i in range(len_max)]
+                offsets_random_end_shuffle[-1][-1].append(dirs)
+
+
 ############### A CHANGER PEUT ETRE
+    print("# Computing shuffled offsets for fully random")
     offsets_random_full_shuffle = []
     for k_r in range(nb_random):
         print(k_r)
@@ -290,21 +305,22 @@ def similarities_random(offsets_random, pairs_sets, vocabulary, nb_random=10):
     offsets_random_end, \
     offsets_random_full = offsets_random
 
+    print("# Computing similarities for permutation within")
     similarities_permutation_within = [
         similarite_offsets(offsets_permutation_within[k_r]) for k_r in range(nb_random)]
-    print("intra")
+    print("# Computing similarities for mismatched within")
     similarities_mismatched_within = [
         similarite_offsets(offsets_mismatched_within[k_r]) for k_r in range(nb_random)]
-    print("inter")
+    print("# Computing similarities for mismatched across")
     similarities_mismatched_across = [similarite_offsets(offsets_mismatched_across[k_r]) for k_r
                                               in range(nb_random)]
-    print("N -> R")
+    print("# Computing similarities for random start")
     similarities_random_start = [similarite_offsets(offsets_random_start[k_r])
                                                 for k_r in range(nb_random)]
-    print("R -> N")
+    print("# Computing similarities for random end")
     similarities_random_end = [similarite_offsets(offsets_random_end[k_r])
                                                 for k_r in range(nb_random)]
-    print("R R")
+    print("# Computing similarities for fully random")
     similarities_random_full = [similarite_offsets(offsets_random_full[k_r]) for k_r in
                                                 range(nb_random)]
 
@@ -324,23 +340,23 @@ def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=5
     offsets_random_end_shuffle, \
     offsets_random_full_shuffle = offsets_random_shuffle
 
-    print('intra')
+    print("# Computing similarities for mismatched within shuffle")
     similarities_mismatched_within_shuffle = [
         [similarite_offsets(np.array(offsets_mismatched_within_shuffle[k_r])[:, perm]) for
          perm in range(nb_perms)] for k_r in range(nb_random)]
-    print('inter')
+    print("# Computing similarities for mismatched across shuffle")
     similarities_mismatched_across_shuffle = [
         [similarite_offsets(np.array(offsets_mismatched_across_shuffle[k_r])[:, perm]) for perm in
          range(nb_perms)] for k_r in range(nb_random)]
-    print('N>R')
+    print("# Computing similarities for random start shuffle")
     similarities_random_start_shuffle = [
         [similarite_offsets(np.array(offsets_random_start_shuffle[k_r])[:, perm]) for perm in
          range(nb_perms)] for k_r in range(nb_random)]
-    print('R>N')
+    print("# Computing similarities for random end shuffle")
     similarities_random_end_shuffle = [
         [similarite_offsets(np.array(offsets_random_end_shuffle[k_r])[:, perm]) for perm in
          range(nb_perms)] for k_r in range(nb_random)]
-    print('R>R')
+    print("# Computing similarities for fully random shuffle")
     similarities_random_full_shuffle = [
         [similarite_offsets(offsets_random_full_shuffle[k_r][perm]) for perm in range(nb_perms)]
         for k_r in range(nb_random)]
@@ -366,6 +382,8 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random, simi
     similarities_random_start_shuffle, \
     similarities_random_end_shuffle, \
     similarities_random_full_shuffle = similarities_random_shuffle
+
+    print('# Computing the OCS and PCS metrics for all sets')
 
     ocs, pcs = OCS_PCS(nb_perms,
                        similarities,
@@ -425,16 +443,16 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_cate
 
     names_all = names
     for n in names:
-        names_all.append("Permutation within: ", n)
+        names_all.append("Permutation within: "+ str(n))
     for n in names:
-        names_all.append("Mismatched within: ", n)
+        names_all.append("Mismatched within: "+ str(n))
     for n in names:
-        names_all.append("Mismatched across: ", n)
+        names_all.append("Mismatched across: "+ str(n))
     for n in names:
-        names_all.append("Random start: ", n)
+        names_all.append("Random start: "+ str(n))
     for n in names:
-        names_all.append("Random end: ", n)
-    names_all.append("Random full", n)
+        names_all.append("Random end: "+ str(n))
+    names_all.append("Random full"+ str(n))
 
     normal_offsets, shf_offsets = normal_and_shuffled_offsets(model,
                                                               pairs_sets, nb_perms=nb_perms)
