@@ -188,7 +188,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
            perm_lists,
            idx_randoms)
 
-def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms=50, nb_random=10):
+def shuffled_offsets_random(model, pairs_sets, vocabulary, perm_lists, idx_randoms, nb_perms=50, nb_random=10):
     perm_lists_permutation_within, \
     perm_lists_mismatched_within, \
     perm_lists_mismatched_across = perm_lists
@@ -214,7 +214,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                 # perm_list = permutation_onecycle_avoidtrue(len_max, directions_tuples[kj])
                 dirs = [model.wv.get_vector(pairs_sets[kj][perm_list[i]][1]) -
                         model.wv.get_vector(pairs_sets[k][i][0])
-                        for i in range(len_max)]
+                        for i in range(len_max) if pairs_sets[kj][perm_list[i]][1] in vocabulary and pairs_sets[k][i][0] in vocabulary]
                 offsets_mismatched_within_shuffle[-1][-1].append(dirs)
 
     print("# Computing shuffled offsets for mismatched across")
@@ -231,7 +231,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                 # perm_list = permutation_onecycle_avoidtrue(len_max, directions_tuples[kj])
                 dirs = [model.wv.get_vector(pairs_sets[kj][perm_list[i]][1]) -
                         model.wv.get_vector(pairs_sets[k][i][0])
-                        for i in range(len_max)]
+                        for i in range(len_max) if pairs_sets[kj][perm_list[i]][1] in vocabulary and pairs_sets[k][i][0] in vocabulary]
                 offsets_mismatched_across_shuffle[-1][-1].append(dirs)
 
     print("# Computing shuffled offsets for random start")
@@ -246,7 +246,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                 perm_list = permutation_onecycle(len_max)
                 dirs = [model.wv.get_vector(pairs_sets[k][perm_list[i]][1]) -
                         model.wv.get_vector(idx_random_categ[k][k_r][i])
-                        for i in range(len_max)]
+                        for i in range(len_max) if pairs_sets[k][perm_list[i]][1] in vocabulary and idx_random_categ[k][k_r][i] in vocabulary]
                 offsets_random_start_shuffle[-1][-1].append(dirs)
 
     # a* - a, a d'un ensemble random, shuffle
@@ -261,7 +261,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
                 perm_list = permutation_onecycle(len_max)
                 dirs = [model.wv.get_vector(idx_random_categ[k][k_r][perm_list[i]]) -
                         model.wv.get_vector(pairs_sets[k][i][0])
-                        for i in range(len_max)]
+                        for i in range(len_max) if idx_random_categ[k][k_r][perm_list[i]] in vocabulary and pairs_sets[k][i][0] in vocabulary]
                 offsets_random_end_shuffle[-1][-1].append(dirs)
 
 
@@ -276,7 +276,7 @@ def shuffled_offsets_random(model, pairs_sets, perm_lists, idx_randoms, nb_perms
             perm_list = permutation_onecycle(len(idx_random_full_start[k_r]))
             dirs = [model.wv.get_vector(idx_random_full_end[k_r][perm_list[i]]) -\
                     model.wv.get_vector(idx_random_full_start[k_r][i])
-                    for i in range(len_max)]
+                    for i in range(len_max) if idx_random_full_end[k_r][perm_list[i]] in vocabulary and idx_random_full_start[k_r][i] in vocabulary]
             offsets_random_full_shuffle[-1][-1].append(dirs)
 
     #offsets_random_full_shuffle = [
@@ -469,6 +469,7 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_cate
 
     offsets_random_shuffle = shuffled_offsets_random(model,
                                                      pairs_sets,
+                                                     vocabulary,
                                                      perm_lists,
                                                      idx_randoms,
                                                      nb_perms=nb_perms, nb_random=nb_random)
