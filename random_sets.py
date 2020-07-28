@@ -92,7 +92,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
             for k in range(len_max):
                 di = list(pairs_sets[i])[k]
                 dj = list(pairs_sets[j])[k]
-                if dj[1] != di[0]:
+                if di[0] in vocabulary and dj[1] in vocabulary and dj[1] != di[0]:
                     offsets_mismatched_within[-1][-1].append(
                         model.wv.get_vector(dj[1]) - model.wv.get_vector(di[0]))
 
@@ -112,7 +112,7 @@ def offsets_perms_random(model, pairs_sets, vocabulary, nb_random=10, size_rando
             for k in range(len_max):
                 di = list(pairs_sets[i])[k]
                 dj = list(pairs_sets[j])[k]
-                if dj[1] != di[0]:
+                if di[0] in vocabulary and dj[1] in vocabulary and dj[1] != di[0]:
                     offsets_mismatched_across[-1][-1].append(model.wv.get_vector(dj[1]) - model.wv.get_vector(di[0]))
 
     print("# Computing the half random offsets")
@@ -454,7 +454,7 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_cate
         names_all.append("Random start: "+ str(n))
     for n in names:
         names_all.append("Random end: "+ str(n))
-    names_all.append("Random full"+ str(n))
+    names_all.append("Random full")
 
     normal_offsets, shf_offsets = normal_and_shuffled_offsets(model,
                                                               pairs_sets, nb_perms=nb_perms)
