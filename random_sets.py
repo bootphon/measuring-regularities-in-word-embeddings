@@ -237,7 +237,6 @@ def shuffled_offsets_random(model, pairs_sets, vocabulary, perm_lists, idx_rando
     print("# Computing shuffled offsets for random start")
     offsets_random_start_shuffle = []
     for k_r in range(nb_random):
-        print(k_r)
         offsets_random_start_shuffle.append([])
         for k in range(len(pairs_sets)):
             offsets_random_start_shuffle[-1].append([])
@@ -269,7 +268,6 @@ def shuffled_offsets_random(model, pairs_sets, vocabulary, perm_lists, idx_rando
     print("# Computing shuffled offsets for fully random")
     offsets_random_full_shuffle = []
     for k_r in range(nb_random):
-        print(k_r)
         offsets_random_full_shuffle.append([])
         offsets_random_full_shuffle[-1].append([])
         for perm in range(nb_perms):
@@ -513,11 +511,11 @@ if __name__ == "__main__":
     name = sys.argv[1]
 
     if len(sys.argv) > 2:
-        nb_perms = sys.argv[2]
+        nb_perms = int(sys.argv[2])
     else:
         nb_perms = 50
     if len(sys.argv) > 3:
-        nb_random = sys.argv[3]
+        nb_random = int(sys.argv[3])
     else:
         nb_random = 10
 

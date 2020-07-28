@@ -157,7 +157,7 @@ if __name__ == "__main__":
     name = sys.argv[1]
 
     if len(sys.argv) > 2:
-        nb_perms = sys.argv[2]
+        nb_perms = int(sys.argv[2])
     else:
         nb_perms = 50
 
