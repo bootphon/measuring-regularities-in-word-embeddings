@@ -340,7 +340,7 @@ def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=5
 
     print("# Computing similarities for fully random shuffle")
     similarities_random_full_shuffle = [
-        [similarite_offsets(offsets_random_full_shuffle[k_r][:, perm]) for perm in range(nb_perms)]
+        [similarite_offsets(np.array(offsets_random_full_shuffle[k_r])[:, perm]) for perm in range(nb_perms)]
         for k_r in range(nb_random)]
     print("# Computing similarities for mismatched within shuffle")
     similarities_mismatched_within_shuffle = [
