@@ -138,7 +138,7 @@ def clean_pairs_fromvocab(vocabulary_set, pairs_sets):
 
 def clean_pairs(model, pairs_sets):
     if type(model) == list:
-        return (pairs_sets)
+        return ([list(p) for p in pairs_sets])
 
     vocabulary_set = vocabulary_model(model)
     return (clean_pairs_fromvocab(vocabulary_set, pairs_sets))

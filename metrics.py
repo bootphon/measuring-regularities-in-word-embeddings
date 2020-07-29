@@ -76,6 +76,7 @@ def OCS_PCS(nb_perm, similarities, similarities_shuffle):
             pcs_list.append(auc_temp)
         pcs.append(np.mean(pcs_list))
         ocs.append(np.mean(similarities[i]))
+    print('# Computed the OCS and PCS metrics')
     return(ocs, pcs)
 
 def word_embedding(model, word):
@@ -128,6 +129,7 @@ def metrics_from_model(model, nb_perms=50):
     similarities = similarite_offsets(normal_offsets)
     similarities_shuffle = [similarite_offsets(np.array(shf_offsets)[:, perm])
                             for perm in range(nb_perms)]
+    print('# Computed the similarities of the normal and shuffled offsets')
 
     ocs, pcs = OCS_PCS(nb_perms, similarities, similarities_shuffle)
 
@@ -147,7 +149,7 @@ def save_metrics(ocs, pcs, name, names, nb_perms):
     df_ocs.to_csv('results/ocs-' + namepath, index=False)
     df_pcs.to_csv('results/pcs-' + namepath, index=False)
 
-    print("# Successfully saved the metrics to ocs/pcs-", str(namepath))
+    print("# Successfully saved the metrics to ocs/pcs-"+str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script
