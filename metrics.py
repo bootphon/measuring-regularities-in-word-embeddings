@@ -142,7 +142,7 @@ def save_metrics(ocs, pcs, name, names, nb_perms):
     df_pcs = pd.DataFrame(np.array([names, pcs]).T, columns=np.array(["Categories", "PCS"]))
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    namepath = str(name) + '-' + nb_perms + '_perms-'  + str(timestr) + '.csv'
+    namepath = str(name) + '-' + str(nb_perms) + '_perms-'  + str(timestr) + '.csv'
 
     df_ocs.to_csv('results/ocs-' + namepath, index=False)
     df_pcs.to_csv('results/pcs-' + namepath, index=False)

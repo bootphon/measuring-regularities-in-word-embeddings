@@ -338,6 +338,10 @@ def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=5
     offsets_random_end_shuffle, \
     offsets_random_full_shuffle = offsets_random_shuffle
 
+    print("# Computing similarities for fully random shuffle")
+    similarities_random_full_shuffle = [
+        [similarite_offsets(offsets_random_full_shuffle[k_r][:, perm]) for perm in range(nb_perms)]
+        for k_r in range(nb_random)]
     print("# Computing similarities for mismatched within shuffle")
     similarities_mismatched_within_shuffle = [
         [similarite_offsets(np.array(offsets_mismatched_within_shuffle[k_r])[:, perm]) for
@@ -354,10 +358,6 @@ def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=5
     similarities_random_end_shuffle = [
         [similarite_offsets(np.array(offsets_random_end_shuffle[k_r])[:, perm]) for perm in
          range(nb_perms)] for k_r in range(nb_random)]
-    print("# Computing similarities for fully random shuffle")
-    similarities_random_full_shuffle = [
-        [similarite_offsets(offsets_random_full_shuffle[k_r][perm]) for perm in range(nb_perms)]
-        for k_r in range(nb_random)]
 
     similarities_random_shuffle = (similarities_mismatched_within_shuffle,
                                    similarities_mismatched_across_shuffle,
@@ -496,7 +496,7 @@ def save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random):
     df_pcs = pd.DataFrame(np.array([names_all, pcs_all]).T, columns=np.array(["Categories", "PCS"]))
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    namepath = str(name) + '-' + nb_perms + '_perms-' + nb_random + '_random-' + str(timestr) + '.csv'
+    namepath = str(name) + '-' + str(nb_perms) + '_perms-' + str(nb_random) + '_random-' + str(timestr) + '.csv'
 
     df_ocs.to_csv('results/random_ocs-' + namepath, index=False)
     df_pcs.to_csv('results/random_pcs-' + namepath, index=False)
