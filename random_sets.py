@@ -274,7 +274,7 @@ def shuffled_offsets_random(model, pairs_sets, vocabulary, perm_lists, idx_rando
             perm_list = permutation_onecycle(len(idx_random_full_start[k_r]))
             dirs = [model.wv.get_vector(idx_random_full_end[k_r][perm_list[i]]) -\
                     model.wv.get_vector(idx_random_full_start[k_r][i])
-                    for i in range(len_max) if idx_random_full_end[k_r][perm_list[i]] in vocabulary and idx_random_full_start[k_r][i] in vocabulary]
+                    for i in range(len(idx_random_full_start[k_r])) if idx_random_full_end[k_r][perm_list[i]] in vocabulary and idx_random_full_start[k_r][i] in vocabulary]
             offsets_random_full_shuffle[-1][-1].append(dirs)
 
     #offsets_random_full_shuffle = [
