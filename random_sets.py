@@ -322,14 +322,14 @@ def similarities_random(offsets_random, pairs_sets, vocabulary, nb_random=10):
     similarities_random_full = [similarite_offsets(offsets_random_full[k_r]) for k_r in
                                                 range(nb_random)]
 
-    similarities_random = (similarities_permutation_within,
+    similarities_random_results = (similarities_permutation_within,
                            similarities_mismatched_within,
                            similarities_mismatched_across,
                            similarities_random_start,
                            similarities_random_end,
                            similarities_random_full)
 
-    return(similarities_random)
+    return(similarities_random_results)
 
 def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=50):
     offsets_mismatched_within_shuffle, \
@@ -359,27 +359,28 @@ def similarities_shuffle_random(offsets_random_shuffle, nb_random=10, nb_perms=5
         [similarite_offsets(np.array(offsets_random_end_shuffle[k_r])[:, perm]) for perm in
          range(nb_perms)] for k_r in range(nb_random)]
 
-    similarities_random_shuffle = (similarities_mismatched_within_shuffle,
+    similarities_random_shuffle_results = (similarities_mismatched_within_shuffle,
                                    similarities_mismatched_across_shuffle,
                                    similarities_random_start_shuffle,
                                    similarities_random_end_shuffle,
                                    similarities_random_full_shuffle)
 
-    return(similarities_random_shuffle)
+    return(similarities_random_shuffle_results)
 
-def ocs_pcs_random(similarities, similarities_shuffle, similarities_random, similarities_random_shuffle, nb_random=10, nb_perms=50):
+
+def ocs_pcs_random(similarities, similarities_shuffle, similarities_random_results, similarities_random_shuffle_results, nb_random=10, nb_perms=50):
     similarities_permutation_within, \
     similarities_mismatched_within, \
     similarities_mismatched_across, \
     similarities_random_start, \
     similarities_random_end, \
-    similarities_random_full = similarities_random
+    similarities_random_full = similarities_random_results
 
     similarities_mismatched_within_shuffle, \
     similarities_mismatched_across_shuffle, \
     similarities_random_start_shuffle, \
     similarities_random_end_shuffle, \
-    similarities_random_full_shuffle = similarities_random_shuffle
+    similarities_random_full_shuffle = similarities_random_shuffle_results
 
     print('# Computing the OCS and PCS metrics for all sets')
 
