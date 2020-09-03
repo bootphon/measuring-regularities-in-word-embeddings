@@ -131,6 +131,9 @@ def plot_metrics(results, type):
 
     if type in ['ocs', 'pcs']:
         names, r1 = results
+        print(len(names))
+        print(len(r1))
+        print(names)
     else:
         names, r1, _, _ = results
         r1 = [0.01 * r1[i] for i in range(len(r1)) if not i in ['11','22','33','44']]
