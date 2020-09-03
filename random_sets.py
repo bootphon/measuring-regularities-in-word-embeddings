@@ -482,7 +482,7 @@ def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_cate
     similarities_shuffle = [similarite_offsets(np.array(shf_offsets)[:, perm])
                             for perm in range(nb_perms)]
 
-    similarities_random_results = similarities_random(offsets_random, pairs_sets, vocabulary, nb_random=10)
+    similarities_random_results = similarities_random(offsets_random, pairs_sets, vocabulary, nb_random=nb_random)
     similarities_random_shuffle = similarities_shuffle_random(offsets_random_shuffle,
                                                               nb_random=nb_random, nb_perms=nb_perms)
 
