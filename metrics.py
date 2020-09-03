@@ -149,7 +149,7 @@ def save_metrics(ocs, pcs, name, names, nb_perms):
     df_ocs.to_csv('results/ocs-' + namepath, index=False)
     df_pcs.to_csv('results/pcs-' + namepath, index=False)
 
-    print("# Successfully saved the metrics to ocs/pcs-"+str(namepath))
+    print("# Successfully saved the metrics to results/ocs/pcs-"+str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script

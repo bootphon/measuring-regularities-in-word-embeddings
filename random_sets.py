@@ -508,7 +508,7 @@ def save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random):
     df_ocs.to_csv('results/random_ocs-' + namepath, index=False)
     df_pcs.to_csv('results/random_pcs-' + namepath, index=False)
 
-    print("# Successfully saved the random metrics to ocs/pcs-"+str(namepath))
+    print("# Successfully saved the random metrics to results/random_(o/p)cs-"+str(namepath))
 
 if __name__ == "__main__":
     # execute only if run as a script

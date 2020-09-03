@@ -137,7 +137,7 @@ def decompo(model, pairs_sets, vocabulary, decomposition='all'):
 def save_decompo(names, results, decomposition):
     if decomposition == 'decomposition': columns = np.array(['Categories', 'b*b\'', 'o_a*o_b', 'o_a*b'])
     if decomposition == 'decomposition_ref': columns = np.array(['Categories', 'b*analogy', 'o_a*b', 'o_a^2'])
-    if decomposition == 'delta_sim': columns = np.array(['Categories', 'b*analogy', 'o_a*o_b', 'o_a*b'])
+    if decomposition == 'delta_sim': columns = np.array(['Categories', 'rest', 'o_a*o_b', 'o_b*b'])
 
     r = np.array([names,results[0],results[1],results[2]])
     df = pd.DataFrame(r.T, columns=columns)
