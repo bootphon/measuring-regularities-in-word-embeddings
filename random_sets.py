@@ -436,9 +436,6 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random_resul
                np.mean(pcs_random_end, axis=0),
                np.mean(pcs_random_full, axis=0)])
 
-    for o in ocs_all:
-        print(len(o))
-
     return(ocs_all, pcs_all)
 
 def metrics_random_from_model(model, nb_perms=50, nb_random=10, size_random_categ=50, limit_word=10000):
