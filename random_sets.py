@@ -36,6 +36,8 @@ import plotly
 import tensorflow
 import transformers
 
+import numpy as np
+
 from metrics import permutation_onecycle, similarite_offsets, normal_and_shuffled_offsets, OCS_PCS
 from read_bats import vocab_bats, bats_names_pairs
 from models import vocabulary_model, load_model, MODELS
@@ -418,21 +420,24 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random_resul
                                     similarities_random_full_shuffle[k_r]) for k_r in range(nb_random)])
     ocs_random_full, pcs_random_full = metrics_tmp[:, 0], metrics_tmp[:, 1]
 
-    ocs_all = (ocs,
+    ocs_all = [ocs,
                np.mean(ocs_permutation_within, axis=0),
                np.mean(ocs_mismatched_within, axis=0),
                np.mean(ocs_mismatched_across, axis=0),
                np.mean(ocs_random_start, axis=0),
                np.mean(ocs_random_end, axis=0),
-               np.mean(ocs_random_full, axis=0))
+               np.mean(ocs_random_full, axis=0)]
 
-    pcs_all = (pcs,
+    pcs_all = [pcs,
                np.mean(pcs_permutation_within, axis=0),
                np.mean(pcs_mismatched_within, axis=0),
                np.mean(pcs_mismatched_across, axis=0),
                np.mean(pcs_random_start, axis=0),
                np.mean(pcs_random_end, axis=0),
-               np.mean(pcs_random_full, axis=0))
+               np.mean(pcs_random_full, axis=0)]
+
+    for o in ocs_all:
+        print(len(o))
 
     return(ocs_all, pcs_all)
 
@@ -493,6 +498,9 @@ def save_metrics_random(ocs_all, pcs_all, name, names_all, nb_perms, nb_random):
     if not exists('results'):
         print("# ", str('results'), "not found, creating dir.")
         mkdir('results')
+
+    print(len(names_all))
+    print(len(ocs_all))
 
     df_ocs = pd.DataFrame(np.array([names_all, ocs_all]).T, columns=np.array(["Categories", "OCS"]))
     df_pcs = pd.DataFrame(np.array([names_all, pcs_all]).T, columns=np.array(["Categories", "PCS"]))
