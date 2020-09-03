@@ -130,7 +130,9 @@ def plot_metrics(results, type):
     if type == 'ocs': yaxis_title_text = 'Honnest analogy test scores'
 
     if type in ['ocs', 'pcs']:
-        names, r1 = results
+        results = np.array(results)
+        print(results.shape)
+        names, r1 = results[:,0], results[:,1]
         print(len(names))
         print(len(r1))
         print(names)
