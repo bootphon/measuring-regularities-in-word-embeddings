@@ -420,21 +420,21 @@ def ocs_pcs_random(similarities, similarities_shuffle, similarities_random_resul
                                     similarities_random_full_shuffle[k_r]) for k_r in range(nb_random)])
     ocs_random_full, pcs_random_full = metrics_tmp[:, 0], metrics_tmp[:, 1]
 
-    ocs_all = [ocs,
+    ocs_all =  np.hstack([ocs,
                np.mean(ocs_permutation_within, axis=0),
                np.mean(ocs_mismatched_within, axis=0),
                np.mean(ocs_mismatched_across, axis=0),
                np.mean(ocs_random_start, axis=0),
                np.mean(ocs_random_end, axis=0),
-               np.mean(ocs_random_full, axis=0)]
+               np.mean(ocs_random_full, axis=0)])
 
-    pcs_all = [pcs,
+    pcs_all =  np.hstack([pcs,
                np.mean(pcs_permutation_within, axis=0),
                np.mean(pcs_mismatched_within, axis=0),
                np.mean(pcs_mismatched_across, axis=0),
                np.mean(pcs_random_start, axis=0),
                np.mean(pcs_random_end, axis=0),
-               np.mean(pcs_random_full, axis=0)]
+               np.mean(pcs_random_full, axis=0)])
 
     for o in ocs_all:
         print(len(o))
