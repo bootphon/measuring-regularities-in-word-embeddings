@@ -36,7 +36,7 @@ def analogy_decomposition(start_words, end_words):
             for k in range(len(list_start_words)):
                 if j != k:
                     a, ap, b, bp = list_start_words[j], list_end_words[j], list_start_words[k], list_end_words[k]
-                    o_a, o_b = ap - a, bp - a
+                    o_a, o_b = ap - a, bp - b
                     analogy = b + o_a
                     norme_analogie_m1 = 1 / (np.linalg.norm(analogy))
                     norme_bp_m1 = 1 / (np.linalg.norm(bp))
@@ -70,7 +70,7 @@ def analogy_decomposition_reference(start_words, end_words):
             for k in range(len(list_start_words)):
                 if j != k:
                     a, ap, b, bp = list_start_words[j], list_end_words[j], list_start_words[k], list_end_words[k]
-                    o_a, o_b = ap - a, bp - a
+                    o_a, o_b = ap - a, bp - b
                     analogy = b + o_a
                     norme_analogie_m1 = 1 / (np.linalg.norm(analogy))
 
@@ -101,7 +101,7 @@ def delta_sim(start_words, end_words):
             for k in range(len(list_start_words)):
                 if j != k:
                     a, ap, b, bp = list_start_words[j], list_end_words[j], list_start_words[k], list_end_words[k]
-                    o_a, o_b = ap - a, bp - a
+                    o_a, o_b = ap - a, bp - b
                     analogy = b + o_a
                     norme_analogie_m1 = 1 / (np.linalg.norm(analogy))
                     norme_bp_m1 = 1 / (np.linalg.norm(bp))

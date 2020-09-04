@@ -1,38 +1,18 @@
-from scipy import sparse
-from scipy.stats import ttest_ind
-from scipy.sparse.linalg import norm
-from scipy.stats import iqr
-
-from sklearn.metrics import pairwise_distances
-from sklearn.metrics.pairwise import cosine_distances
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.metrics.pairwise import cosine_similarity as cos_sim
-from sklearn.preprocessing import normalize
-from sklearn.cluster import SpectralClustering
-
-from svd2vec import svd2vec
-
-import plotly.graph_objects as go
-import plotly
+import sys
+from os import mkdir
+from os.path import join, exists
 
 import numpy as np
 import pandas as pd
-import sys
-from os.path import join, exists
-from os import mkdir
+import plotly.graph_objects as go
 
 
-import tensorflow
-import transformers
-
-from gensim.test.utils import datapath, get_tmpfile
-from gensim.scripts.glove2word2vec import glove2word2vec
-
-from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
+# conda install psutil
+# conda install -c plotly plotly-orca
 
 def plot_decomposition(results, type):
-    c1 = '#FFBBB3'
-    c2 = '#5F2EFF'
+    c1 = '#5F2EFF'
+    c2 = '#FFBBB3'
     c3 = '#00610F'
     # Alphabetical order of the BATS names.
     idx_idel = [37, 32, 39, 38, 36, 33, 35, 31, 30, 34,
@@ -40,8 +20,8 @@ def plot_decomposition(results, type):
                 19, 10, 14, 15, 11, 18, 17, 12, 13, 16,
                 2,  1,  0,  8,  9,  4,  5,  6,  3,  7]
 
-
-    names, r1, r2, r3 = results
+    results = np.array(results)
+    names, r1, r2, r3 = results[:, 0], results[:, 1], results[:, 2], results[:, 3]
 
     x = np.array([d[5:-1] for d in names])[idx_idel][1:]
 
@@ -49,74 +29,30 @@ def plot_decomposition(results, type):
     r2 = r2[idx_idel][1:]
     r3 = r3[idx_idel][1:]
 
-    #y1 = [np.mean(am1_dm1_c_d[i]) for i in idx_idel]
-    #y2 = [np.mean(am1_dm1_bma_d[i]) for i in idx_idel]
-    #y3 = [np.mean(am1_dm1_bma_c[i]) for i in idx_idel]
-    #y4 = np.array(y2) - np.array(y3)
-    #   y4=[np.mean(am1_dm1_c_dmc[i]) for i in idx_idel] même chose sauf erreur
-
     if type == 'decomposition':
-        fig = go.Figure(go.Bar(x=x, y=r1, name='$b\cdot b^*$', marker_color=c2)) #y1
-        fig.add_trace(go.Bar(x=x, y=r3, name='$b\cdot o_a$', marker_color=c1)) #y3
+        fig = go.Figure(go.Bar(x=x, y=r1, name='$b\cdot b^*$', marker_color=c1))  # y1
+        fig.add_trace(go.Bar(x=x, y=r3, name='$b\cdot o_a$', marker_color=c2))  #y3
         fig.add_trace(go.Bar(x=x, y=r2, name='$o_b\cdot o_a$', marker_color=c3)) #y4
-        fig.update_layout(barmode='relative',
-                          xaxis={'tickangle': -45, 'ticklen': 0.5},
-                          font=dict(family="Times New Roman", size=16),
-                          yaxis_title_text='Value in the analogy score')
-        return(fig)
+        fig.update_layout(yaxis_title_text='Value in the analogy score')
 
     if type == 'decomposition_ref':
-        fig = go.Figure(go.Bar(x=x, y=r1, name='$b\cdot (b+o_a)$', marker_color=c2))
-        fig.add_trace(go.Bar(x=x, y=r2, name='$b\cdot o_a$', marker_color=c1))
+        fig = go.Figure(go.Bar(x=x, y=r1, name='$b\cdot (b+o_a)$', marker_color=c1))
+        fig.add_trace(go.Bar(x=x, y=r2, name='$b\cdot o_a$', marker_color=c2))
         fig.add_trace(go.Bar(x=x, y=r3, name='$o_a\cdot o_a$', marker_color=c3))
-        fig.update_layout(barmode='relative',
-                          xaxis={'tickangle': -45, 'ticklen': 0.5},
-                          font=dict(family="Times New Roman", size=16),
-                          yaxis_title_text='Value in the reference analogy score')
-
-        return (fig)
-    #z1 = [np.mean(am2_ana_bma[i]) for i in idx_idel]
-    #z2 = [np.mean(am2_ana_c[i]) for i in idx_idel]
-    #z3 = [np.mean(am2_c_bma[i]) for i in idx_idel]
-    #z4 = [np.mean(am2_bma_bma[i]) for i in idx_idel]
-    #fig = go.Figure(go.Bar(x=x, y=z2, name='$b\cdot (b+o_a)$', marker_color=c2))
-    #fig.add_trace(go.Bar(x=x, y=z3, name='$b\cdot o_a$', marker_color=c1))
-    #fig.add_trace(go.Bar(x=x, y=z4, name='$off_a\cdot o_a$', marker_color=c3))
-    #fig.update_layout(barmode='relative',
-    #                  xaxis={'tickangle': -45, 'ticklen': 0.5},
-    #                  font=dict(family="Times New Roman", size=16),
-    #                  yaxis_title_text='Value in the reference analogy score')
-    #fig.show()
+        fig.update_layout(yaxis_title_text='Value in the reference analogy score')
 
     if type == 'delta':
         fig = go.Figure(
-            go.Bar(x=x, y=r1, name='$(1\!-\!\|b^*\|/\|b\|)\!\cdot\!(b\!+\!o_a)\!\cdot\!b$', marker_color=c1))
+            go.Bar(x=x, y=r1, name='$(1\!-\!\|b^*\|/\|b\|)\!\cdot\!(b\!+\!o_a)\!\cdot\!b$', marker_color=c2))
         fig.add_trace(go.Bar(x=x, y=r2, name='$o_a\!\cdot\!o_b$', marker_color=c3))
-        fig.add_trace(go.Bar(x=x, y=r3, name='$b\!\cdot\!o_b$', marker_color=c2))
-        fig.update_layout(barmode='relative',
-                          xaxis={'tickangle': -45, 'tickwidth': 0.5},
-                          font=dict(family="Times New Roman", size=16),
-                          yaxis_title_text='$\Delta_{sim}$')
+        fig.add_trace(go.Bar(x=x, y=r3, name='$b\!\cdot\!o_b$', marker_color=c1))
+        fig.update_layout(yaxis_title_text='$\Delta_{sim}$')
 
-        return (fig)
-
-    #y1 = [np.mean(am1_cd_f_dm1mcm1[i]) for i in idx_idel]  # range(len(x))]
-    #y2 = [np.mean(am1_dm1_bma_dmc[i]) for i in idx_idel]  # range(len(x))]
-    #y3 = [np.mean(am1_dm1_c_dmc[i]) for i in idx_idel]  # range(len(x))]
-    #fig = go.Figure(go.Bar(x=x, y=y1, name='$(1\!-\!\|b^*\|/\|b\|)\!\cdot\!(b\!+\!o_a)\!\cdot\!b$', marker_color=c1))
-    #fig.add_trace(go.Bar(x=x, y=y2, name='$o_a\!\cdot\!o_b$', marker_color=c3))
-    #fig.add_trace(go.Bar(x=x, y=y3, name='$b\!\cdot\!o_b$', marker_color=c2))
-    #fig.update_layout(barmode='relative',
-    #                  xaxis={'tickangle': -45, 'tickwidth': 0.5},
-    #                  font=dict(family="Times New Roman", size=16),
-    #                  yaxis_title_text='$\Delta_{sim}$')
-    #fig.show()
-
-
-#versions with "all"?
+    fig.update_layout(barmode='relative',
+                      xaxis={'tickangle': -45, 'ticklen': 0.5})
+    return (fig)
 
 def plot_metrics(results, type):
-    # OCS, PCS (not random only?), Analogy test vanilla or not
     c1 = '#5F2EFF'
     # Alphabetical order of the BATS names.
     idx_idel = [37, 32, 39, 38, 36, 33, 35, 31, 30, 34,
@@ -126,34 +62,27 @@ def plot_metrics(results, type):
 
     if type == 'ocs': yaxis_title_text = 'Offset Concentration Score'
     if type == 'pcs': yaxis_title_text = 'Pairwise Consistency Score'
-    if type == 'analogy': yaxis_title_text = 'Analogy test scores'
-    if type == 'ocs': yaxis_title_text = 'Honnest analogy test scores'
+    if type == 'test': yaxis_title_text = 'Analogy test scores'
+    if type == 'vanilla': yaxis_title_text = 'Honnest analogy test scores'
 
-    if type in ['ocs', 'pcs']:
-        results = np.array(results)
-        print(results.shape)
-        names, r1 = results[:,0], results[:,1]
-        print(len(names))
-        print(len(r1))
-        print(names)
+    results = np.array(results)
+    names, r1 = results[:, 0], results[:, 1]
+
+    if type in ['test', 'vanilla']:
+        r1 = np.array([0.01 * r1[i] for i in range(len(r1)) if not i in [10, 21, 32, 43]])
+        names = np.array([names[i] for i in range(len(names)) if not i in [10, 21, 32, 43]])
+        x = names[idx_idel][1:]
     else:
-        names, r1, _, _ = results
-        r1 = [0.01 * r1[i] for i in range(len(r1)) if not i in ['11','22','33','44']]
-
-    x = np.array([d[5:-1] for d in names])[idx_idel][1:]
+        x = np.array([d[5:-1] for d in names])[idx_idel][1:]
 
     r1 = r1[idx_idel][1:]
 
     fig = go.Figure(go.Bar(x=x, y=r1, marker_color=c1))
-    #fig.add_trace(go.Bar(x=x, y=r2, name='$b\cdot o_a$', marker_color=c1))
-    #fig.add_trace(go.Bar(x=x, y=r3, name='$o_a\cdot o_a$', marker_color=c3))
     fig.update_layout(xaxis={'tickangle': -45, 'ticklen': 0.5},
-                      font=dict(family="Times New Roman", size=16),
                       yaxis_title_text=yaxis_title_text)
 
     if type == 'pcs':
         fig.update_yaxes(range=[0.5, 1])
-
 
     return (fig)
 
@@ -162,7 +91,9 @@ def save_img(img, path, img_type):
         print("# ", str('figures'), "not found, creating dir.")
         mkdir('figures')
 
-    img.write_image("figures/" + str(path[:-4]) + '.' + img_type)
+    img_path = "figures/" + str(path[:-4]) + '.' + img_type
+    img.write_image(img_path, width=1920 / 2, height=1080 / 2)
+    print('# Successfully saved the image file to: ', img_path)
 
 def plot_result(path):
     spath = str(path)
@@ -170,6 +101,8 @@ def plot_result(path):
         results = pd.read_csv(path)
         if 'ocs' in spath: type='ocs'
         if 'pcs' in spath: type='pcs'
+        if 'analogy_test' in spath: type = 'test'
+        if 'vanilla' in spath: type = 'vanilla'
 
         return(plot_metrics(results, type=type))
 
@@ -180,6 +113,8 @@ def plot_result(path):
         if 'delta' in spath: type='delta'
 
         return(plot_decomposition(results, type=type))
+
+    raise ('# This result file type is not plotable.')
 
 if __name__ == "__main__":
     # execute only if run as a script
