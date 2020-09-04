@@ -8,7 +8,6 @@ import sys
 import gensim
 import wget
 from gensim.scripts.glove2word2vec import glove2word2vec
-from gensim.test.utils import get_tmpfile
 from gensim.models.word2vec import Word2Vec
 from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
 
@@ -126,7 +125,7 @@ def load_model(name, binary=False):
 
 def vocabulary_model(model):
     vocabulary_keys = model.vocab.keys()
-    vocabulary_set = set(vocabulary_keys)  # , np.array(list(vocabulary_keys))
+    vocabulary_set = set(vocabulary_keys)
     return (vocabulary_set)
 
 
@@ -151,90 +150,3 @@ if __name__ == "__main__":
     else:
         name = sys.argv[1]
         download_model(name)
-
-# word2vec
-# wget.download('https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz')
-
-# Glove
-# !wget http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip
-# !unzip glove.840B.300d.zip
-
-# dict2vec
-# !wget https://dict2vec.s3.amazonaws.com/dict2vec300.tar.bz2
-# !tar -x dict2vec300.tar.bz2
-
-# ConceptNet Numberbatch
-# !wget https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-en-19.08.txt.gz
-
-# BERT and GPT-2 ==> Loading will download them
-# bert_tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
-# bert_model = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
-
-# gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-# gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2').transformer.wte.weight.data.numpy()
-
-
-# word2vec
-# pretrained_embeddings_path = "word-embeddings-geometry/GoogleNews-vectors-negative300.bin.gz"
-# "./GoogleNews-vectors-negative300.bin.gz"
-# model = gensim.models.KeyedVectors.load_word2vec_format(pretrained_embeddings_path,
-# binary=True)
-
-# Glove
-# tmp_file = get_tmpfile("./glove_gensim.txt")
-# _ = glove2word2vec('./glove.840B.300d.txt', tmp_file)
-
-# model_glove = gensim.models.KeyedVectors.load_word2vec_format(tmp_file)
-
-# dict2vec
-# model_dict2vec = gensim.models.KeyedVectors.load_word2vec_format("dict2vec-vectors-dim300.vec", binary=False, unicode_errors="ignore")
-
-# ConceptNet Numberbatch
-# pretrained_embeddings_path = "numberbatch-en-19.08.txt.gz"
-# model_conceptnet = gensim.models.KeyedVectors.load_word2vec_format(pretrained_embeddings_path)
-
-# BERT and GPT-2
-# bert_tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
-# bert_model = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
-
-# gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-# gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2').transformer.wte.weight.data.numpy()
-'''
-import gensim
-from gensim import utils, matutils
-import gensim.downloader as api
-from gensim.models.word2vec import Word2Vec, Word2VecKeyedVectors
-
-import logging
-import wget
-from itertools import chain
-import logging
-from six import string_types
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-import pickle
-import os
-import sklearn
-
-import scipy
-from scipy import sparse
-from scipy.stats import ttest_ind
-from scipy.sparse.linalg import norm
-from scipy.stats import iqr
-
-from sklearn.metrics import pairwise_distances
-from sklearn.metrics.pairwise import cosine_distances
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.metrics.pairwise import cosine_similarity as cos_sim
-from sklearn.preprocessing import normalize
-from sklearn.cluster import SpectralClustering
-
-from svd2vec import svd2vec
-
-import plotly.graph_objects as go
-import plotly
-
-import tensorflow
-import transformers
-'''

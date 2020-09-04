@@ -6,9 +6,10 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-
+# If plotly does not save the image, try:
 # conda install psutil
 # conda install -c plotly plotly-orca
+# Saving the image may be more complex on Linux
 
 def plot_decomposition(results, type):
     c1 = '#5F2EFF'

@@ -1,49 +1,11 @@
 # Using chrisjmccormick's github for the basic word2vec import
 
-import gensim
 from gensim import utils, matutils
-import gensim.downloader as api
-from gensim.models.word2vec import Word2Vec, Word2VecKeyedVectors
-
-import logging
-import wget
 from itertools import chain
 import logging
 from six import string_types
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-import pickle
 import os
-import sklearn
-
-import scipy
-from scipy import sparse
-from scipy.stats import ttest_ind
-from scipy.sparse.linalg import norm
-from scipy.stats import iqr
-
-from sklearn.metrics import pairwise_distances
-from sklearn.metrics.pairwise import cosine_distances
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.metrics.pairwise import cosine_similarity as cos_sim
-from sklearn.preprocessing import normalize
-from sklearn.cluster import SpectralClustering
-
-from svd2vec import svd2vec
-
-import plotly.graph_objects as go
-import plotly
-
-import tensorflow
-import transformers
-
-from gensim.test.utils import datapath, get_tmpfile
-from gensim.scripts.glove2word2vec import glove2word2vec
-
-from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
-
-
 import sys
 import pandas as pd
 import time
@@ -51,7 +13,6 @@ import time
 from os.path import exists
 from os import mkdir
 
-from read_bats import bats_names_pairs
 from models import vocabulary_model, load_model, MODELS
 
 ## Version modifiée de gensim, peut être à verifier quels sont les changements exactement (le but est principalement d'autorizer la version vanilla)
