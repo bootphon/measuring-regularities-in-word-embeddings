@@ -13,6 +13,10 @@ from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 from models import clean_pairs, load_model, MODELS
 from read_bats import bats_names_pairs
 
+import torch
+import json
+import os
+
 def token_embedding(tokenizer, model, word):
     tokenized_text = tokenizer.tokenize(word)
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
@@ -89,13 +93,80 @@ def word_embedding(model, word):
         embedding = model.get_vector(word)
     return(embedding)
 
-def offsets(model, pairs_sets):
-    return (np.array([[word_embedding(model, i[1]) - \
-                       word_embedding(model, i[0])
+def context_sentence(name):
+    with open(os.path.join('BATS_3.0','context_sentences.json')) as json_file:
+        context_sentences = json.load(json_file)
+    return(context_sentences[name[:3]])
+
+def sublist(liste, pattern):
+    indx = -1
+    for i in range(len(liste)):
+        if liste[i] == pattern[0] and liste[i:i+len(pattern)] == pattern:
+           indx = i
+    return indx
+
+def offset_contextual(model, tokenizer, model_name, name, w1, w2):
+    context = context_sentence(name)
+    c1, c2 = context
+
+    sentence = ' '.join([c1, w1, c2, w2])
+    if model_name == 'gpt-context':
+        sentence = "[CLS] " + sentence + " [SEP]"
+    else:
+        w1 = " "+w1
+        w2 = " "+w2
+
+    tokenized_sentence = tokenizer.tokenize(sentence)
+    tokenized_w1 = tokenizer.tokenize(w1)
+    tokenized_w2 = tokenizer.tokenize(w2)
+
+    indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_sentence)
+    tokens_tensor = torch.tensor([indexed_tokens])
+
+    with torch.no_grad():
+        if model_name == 'gpt-context':
+            segments_ids = [1] * len(tokenized_sentence)
+            segments_tensors = torch.tensor([segments_ids])
+            outputs = model(tokens_tensor, segments_tensors)
+        else:
+            outputs = model(tokens_tensor)
+        hidden_states = outputs[2]
+
+    token_embeddings = torch.stack(hidden_states, dim=0)
+    token_embeddings = torch.squeeze(token_embeddings, dim=1)
+    token_embeddings = token_embeddings.permute(1, 0, 2)
+
+    token_vecs = []
+    for token in token_embeddings:
+        cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+        token_vecs.append(cat_vec)
+
+    idx_w1 = sublist(tokenized_sentence, tokenized_w1)
+    idx_w2 = sublist(tokenized_sentence, tokenized_w2)
+    len_w1 = len(tokenized_w1)
+    len_w2 = len(tokenized_w2)
+
+    embd_w1 = torch.mean(torch.stack(token_vecs[idx_w1:idx_w1 + len_w1 + 1]), dim=0)
+    embd_w2 = torch.mean(torch.stack(token_vecs[idx_w2:idx_w2 + len_w2 + 1]), dim=0)
+
+    return(embd_w2 - embd_w1)
+
+
+def offset(model, w1, w2, name):
+    if type(model) == list and len(model) == 3:
+        model, tokenizer, model_name = model
+        return(offset_contextual(model, tokenizer, model_name, name, w1, w2))
+    else:
+        return(word_embedding(model, w2) - \
+               word_embedding(model, w1))
+
+
+def offsets(model, pairs_sets, names=None):
+    return (np.array([[offset(model, i[0], i[1], names[k])
                        for i in pairs_sets[k]]
                        for k in range(len(pairs_sets))]))
 
-def shuffled_offsets(model, pairs_sets, nb_perms=50, avoid_true=True):
+def shuffled_offsets(model, pairs_sets, nb_perms=50, avoid_true=True, names=None):
     shf_offsets = []
     for k in range(len(pairs_sets)):
         shf_offsets.append([])
@@ -104,18 +175,17 @@ def shuffled_offsets(model, pairs_sets, nb_perms=50, avoid_true=True):
                 perm_list = permutation_onecycle_avoidtrue(len(pairs_sets[k]), pairs_sets[k])
             else:
                 perm_list = permutation_onecycle(len(pairs_sets[k]))
-            offs = [word_embedding(model, pairs_sets[k][perm_list[i]][1]) - \
-                    word_embedding(model, pairs_sets[k][i][0])
+            offs = [offset(model, pairs_sets[k][i][0], pairs_sets[k][perm_list[i]][1], names[k])
                     for i in range(len(pairs_sets[k]))]
             shf_offsets[-1].append(offs)
     return (shf_offsets)
 
-def normal_and_shuffled_offsets(model, pairs_sets, nb_perms=50):
+def normal_and_shuffled_offsets(model, pairs_sets, nb_perms=50, names=None):
     print('# Computing the normal and shuffled offsets')
     pairs_sets = clean_pairs(model, pairs_sets)
 
-    normal_offsets = offsets(model, pairs_sets)
-    shf_offsets = shuffled_offsets(model, pairs_sets, nb_perms=nb_perms)
+    normal_offsets = offsets(model, pairs_sets, names=names)
+    shf_offsets = shuffled_offsets(model, pairs_sets, nb_perms=nb_perms, names=names)
     print('# Computed the normal and shuffled offsets')
     return(normal_offsets, shf_offsets)
 
@@ -123,7 +193,7 @@ def normal_and_shuffled_offsets(model, pairs_sets, nb_perms=50):
 def metrics_from_model(model, nb_perms=50):
     names, pairs_sets = bats_names_pairs(dir="BATS_3.0")
 
-    normal_offsets, shf_offsets = normal_and_shuffled_offsets(model, pairs_sets, nb_perms=nb_perms)
+    normal_offsets, shf_offsets = normal_and_shuffled_offsets(model, pairs_sets, nb_perms=nb_perms, names=names)
 
     print('# Computing the similarities of the normal and shuffled offsets')
     similarities = similarite_offsets(normal_offsets)
@@ -166,6 +236,8 @@ if __name__ == "__main__":
     if name == 'all':
         for name in MODELS:
             model = load_model(name)
+            if name == 'bert-context' or name == 'gpt2-context':
+                model.append(name)
             names, ocs, pcs = metrics_from_model(model, nb_perms=nb_perms)
             print("# Sucessfully computed the OCS and PCS metrics from", str(name))
             save_metrics(ocs, pcs, name, names, nb_perms)
