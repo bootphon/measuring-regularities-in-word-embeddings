@@ -9,18 +9,20 @@ import gensim
 import wget
 from gensim.scripts.glove2word2vec import glove2word2vec
 from gensim.models.word2vec import Word2Vec
-from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel
+from pytorch_pretrained_bert import BertTokenizer, BertModel, GPT2Tokenizer, GPT2LMHeadModel, GPT2Model
 
 
 PATH = 'models'
 
-MODELS = ['word2vec', 'glove', 'dict2vec', 'conceptnet', 'bert', 'gpt2']
+MODELS = ['word2vec', 'glove', 'dict2vec', 'conceptnet', 'bert', 'gpt2', 'bert-context', 'gpt2-context']
 MODEL_PATH_DICT = {'word2vec': 'GoogleNews-vectors-negative300.bin.gz',
                    'glove': 'glove_gensim.txt',
                    'dict2vec': 'dict2vec-vectors-dim300.vec',
                    'conceptnet': 'numberbatch-en-19.08.txt.gz',
                    'bert': 'NOPATH',
-                   'gpt2': 'NOPATH'}
+                   'gpt2': 'NOPATH',
+                   'bert-context': 'NOPATH',
+                   'gpt2-context': 'NOPATH'}
 
 
 def download_model(name):
@@ -65,13 +67,14 @@ def download_model(name):
             print('# Downloaded Conceptnet Numberbatch')
         else:
             print('# Already downloaded')
-    if name == 'bert':
+    if name == 'bert' or name == 'bert-context':
         _ = BertTokenizer.from_pretrained('bert-large-uncased')
         _ = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
         print('# Downloaded bert')
-    if name == 'gpt2':
+    if name == 'gpt2' or name == 'gpt2-context':
         _ = GPT2Tokenizer.from_pretrained('gpt2')
-        _ = GPT2LMHeadModel.from_pretrained('gpt2').transformer.wte.weight.data.numpy()
+        _ = GPT2LMHeadModel.from_pretrained('gpt2')
+        _ = GPT2Model.from_pretrained('gpt2')
         print('# Downloaded gpt-2')
 
 
@@ -103,11 +106,18 @@ def load_model_fromlist(name):
         tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
         model = BertModel.from_pretrained('bert-large-uncased').embeddings.word_embeddings.weight.data.numpy()
         return ([model, tokenizer])
+    if name == 'bert-context':
+        tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+        model = BertModel.from_pretrained('bert-large-uncased', output_hidden_states = True)
+        return ([model, tokenizer])
     if name == 'gpt2':
         tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         model = GPT2LMHeadModel.from_pretrained('gpt2').transformer.wte.weight.data.numpy()
         return ([model, tokenizer])
-
+    if name == 'gpt2-context':
+        tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        model = GPT2Model.from_pretrained('gpt2', output_hidden_states = True)
+        return ([model, tokenizer])
 
 def load_model_custom(model_path, binary=False):
     print("# Loading custom model: ", model_path)
